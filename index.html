@@ -6,15 +6,16 @@
 <meta name="theme-color" content="#10233F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Bahar Service Station — W&amp;M Reimbursement</title>
+<title>BPCL W&amp;M Reimbursement</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 /* ══════════════════════════════════════════════
-   Bahar Service Station — W&M Reimbursement Tool
+   BPCL W&M Reimbursement — invoice generator
    Layout: content-card / input-group pattern (reimbursement.js)
    Click-feedback: color-shift + touch-press pattern (index.html)
    Palette: ink navy + fuel amber
@@ -83,36 +84,60 @@ button{font-family:inherit;}
    content-card / card-head / input-group — reimbursement.js pattern
    ══════════════════════════════════════════════ */
 .content-card{
-  background:var(--card);border-radius:var(--radius);
+  background:var(--card);border-radius:18px;
   padding:clamp(16px,4vw,22px);margin:0 auto 20px;
-  max-width:880px;width:100%;
+  max-width:880px;width:100%;position:relative;
   box-shadow:0 2px 14px rgba(16,27,45,0.07), 0 1px 3px rgba(16,27,45,0.05);
   border:1px solid var(--line-2);
   animation:cardIn .45s cubic-bezier(.22,.9,.32,1.15) backwards;
 }
+.content-card::before{
+  content:'';position:absolute;top:0;left:18px;right:18px;height:3px;border-radius:0 0 3px 3px;
+  background:linear-gradient(90deg,var(--amber),var(--amber-deep));
+}
 @keyframes cardIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-.card-head{margin-bottom:16px;}
-.card-head h3{display:flex;align-items:center;gap:9px;font-size:clamp(13.5px,3.2vw,15px);font-weight:700;color:var(--ink);letter-spacing:.1px;}
-.card-head h3 svg{width:19px;height:19px;color:var(--amber);flex-shrink:0;}
-.card-head span.step{font-size:9.5px;font-weight:700;color:var(--muted-2);letter-spacing:.6px;text-transform:uppercase;margin-left:auto;}
+.card-head{margin-bottom:16px;display:flex;align-items:center;gap:11px;}
+.card-head .stepno{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--ink),var(--ink-2));color:var(--amber);
+  font-family:'Sora',sans-serif;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(16,35,63,.28);
+}
+.card-head h3{display:flex;align-items:center;gap:9px;font-size:clamp(13.5px,3.2vw,15px);font-weight:700;color:var(--ink);letter-spacing:.1px;flex:1;}
+.card-head h3 svg{width:18px;height:18px;color:var(--amber-deep);flex-shrink:0;}
 
 .grid-2{display:grid;grid-template-columns:1fr;gap:14px;}
 @media (min-width:480px){.grid-2{grid-template-columns:1fr 1fr;}}
 
-.input-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.input-group{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
 .input-group:last-child{margin-bottom:0;}
-.input-group label{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.2px;display:flex;align-items:center;gap:5px;}
-.input-group label em{color:var(--bad);font-style:normal;}
+.input-group label{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.2px;display:flex;align-items:center;flex-wrap:wrap;row-gap:2px;line-height:1.4;min-height:14px;}
+.input-group label em{color:var(--bad);font-style:normal;margin-left:5px;}
+.input-group label .hint{margin-left:5px;}
 .input-group .hint{font-size:10px;color:var(--muted-2);font-weight:500;}
 .input-group input,.input-group select{
   min-height:var(--touch);padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;
   font-family:inherit;font-size:16px;color:var(--text);background:#FCFDFE;
-  outline:none;width:100%;-webkit-appearance:none;appearance:none;
+  outline:none;width:100%;
   transition:border-color .18s,box-shadow .18s,background .18s;
 }
+/* keep native appearance ONLY off for text-like inputs/selects; date inputs need
+   their own shadow-DOM layout (incl. the calendar icon) left intact or some
+   mobile browsers collapse/overlap the field */
+.input-group input:not([type="date"]){-webkit-appearance:none;appearance:none;}
 .input-group select{
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364708A' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;
+  -webkit-appearance:none;-moz-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='8' viewBox='0 0 13 8'%3E%3Cpath d='M1 1l5.5 5.5L12 1' stroke='%23E2790E' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;
+}
+.input-group input[type="date"]{
+  color-scheme:light;
+  padding-right:11px;
+}
+.input-group input[type="date"]::-webkit-calendar-picker-indicator{
+  filter:invert(53%) sepia(83%) saturate(1200%) hue-rotate(1deg) brightness(95%) contrast(93%);
+  opacity:.85;cursor:pointer;padding:3px;margin-right:-2px;
 }
 .input-group input:focus,.input-group select:focus{border-color:var(--amber);background:#fff;box-shadow:0 0 0 4px rgba(226,121,14,0.12);}
 .input-group input.mono{font-weight:600;}
@@ -180,6 +205,10 @@ button{font-family:inherit;}
 .att-preview .fname{
   position:absolute;left:0;right:0;bottom:0;padding:6px 8px;font-size:9.5px;font-weight:600;color:#fff;
   background:linear-gradient(0deg,rgba(0,0,0,.6),transparent);
+}
+.att-preview .page-badge{
+  position:absolute;bottom:24px;right:7px;background:rgba(16,35,63,.85);color:#fff;font-size:9px;font-weight:700;
+  padding:3px 8px;border-radius:20px;backdrop-filter:blur(3px);
 }
 @media (max-width:420px){ .att-grid{gap:7px;} .upload-box{padding:12px 5px;min-height:104px;} .upload-box .u-text{font-size:10px;} .upload-box .u-sub{display:none;} }
 
@@ -265,12 +294,9 @@ button{font-family:inherit;}
 
 /* ── Footer ── */
 .foot{text-align:center;padding:26px 20px 6px;}
-.foot-badge{display:inline-flex;align-items:center;gap:9px;background:#fff;border:1.5px solid var(--line-2);border-radius:40px;padding:7px 18px 7px 8px;box-shadow:0 2px 12px rgba(16,27,45,.08);}
-.foot-badge .fb-ico{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--ink),var(--ink-2));display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.foot-badge .fb-ico svg{width:15px;height:15px;color:var(--amber);}
-.foot-badge .fb-text{text-align:left;line-height:1.25;}
-.foot-badge .fb-text .l1{font-size:8.5px;color:var(--muted-2);letter-spacing:.8px;text-transform:uppercase;}
-.foot-badge .fb-text .l2{font-size:12px;font-weight:700;color:var(--ink);}
+.foot-credit{font-size:11px;color:var(--muted-2);display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;font-weight:500;letter-spacing:.1px;}
+.foot-credit .dot{opacity:.45;}
+.foot-credit .brand{color:var(--muted);font-weight:700;}
 
 @keyframes spin{to{transform:rotate(360deg);}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important;}}
@@ -282,8 +308,8 @@ button{font-family:inherit;}
 <header class="topbar">
   <div class="topbar-badge"><i data-lucide="fuel"></i></div>
   <div class="topbar-title">
-    <h1>Bahar Service Station</h1>
-    <p>W&amp;M Stamping Fee Reimbursement</p>
+    <h1>BPCL W&amp;M Reimbursement</h1>
+    <p>Stamping Fee Invoice Generator</p>
   </div>
   <div class="topbar-live">
     <span class="lbl">Total</span>
@@ -293,7 +319,7 @@ button{font-family:inherit;}
 
 <!-- ═══ Station & Dealer Details ═══ -->
 <section class="content-card">
-  <div class="card-head"><h3><i data-lucide="store"></i> Station &amp; Dealer Details<span class="step">1 / 4</span></h3></div>
+  <div class="card-head"><span class="stepno">1</span><h3><i data-lucide="store"></i> Station &amp; Dealer Details</h3></div>
   <div class="grid-2">
     <div class="input-group" id="fc-station">
       <label>Station Name <em>*</em></label>
@@ -309,7 +335,7 @@ button{font-family:inherit;}
   <div class="grid-2" style="margin-top:2px;">
     <div class="input-group" id="fc-cc">
       <label>Dealer Code</label>
-      <input type="text" id="dealerCode" placeholder="e.g. 119934" inputmode="numeric" autocomplete="off" oninput="autoInvNo()">
+      <input type="text" id="dealerCode" placeholder="e.g. 119934" inputmode="numeric" autocomplete="off" oninput="updateInvoiceNo()">
     </div>
     <div class="input-group" id="fc-vc">
       <label>Vendor Code</label>
@@ -321,20 +347,20 @@ button{font-family:inherit;}
     <input type="text" id="panNo" readonly style="background:var(--paper);color:var(--muted);">
   </div>
   <div class="input-group">
-    <label>Invoice No.</label>
-    <input type="text" id="invoiceNo" placeholder="e.g. 119934/WM0001" autocomplete="off">
-    <span class="hint">Auto-suggested from dealer code — edit freely</span>
+    <label>Invoice No. <span class="hint">(auto-generated)</span></label>
+    <input type="text" id="invoiceNo" class="mono" placeholder="e.g. 04Aug26119934001" autocomplete="off" maxlength="16" oninput="onInvoiceNoManualEdit()">
+    <span class="hint">Date + dealer code + a unique code — max 16 chars, never repeats. Edit freely if you need to.</span>
   </div>
   <div class="input-group" id="fc-invd">
     <label>Invoice Date <em>*</em></label>
-    <input type="date" id="invoiceDate">
+    <input type="date" id="invoiceDate" oninput="updateInvoiceNo()">
     <span class="errmsg">Required</span>
   </div>
 </section>
 
 <!-- ═══ Stamping & W&M Certificate ═══ -->
 <section class="content-card">
-  <div class="card-head"><h3><i data-lucide="stamp"></i> Stamping &amp; W&amp;M Certificate<span class="step">2 / 4</span></h3></div>
+  <div class="card-head"><span class="stepno">2</span><h3><i data-lucide="stamp"></i> Stamping &amp; W&amp;M Certificate</h3></div>
   <div class="grid-2">
     <div class="input-group" id="fc-sd">
       <label>Stamping Date <em>*</em></label>
@@ -366,12 +392,19 @@ button{font-family:inherit;}
 
 <!-- ═══ Equipment & Pricing ═══ -->
 <section class="content-card">
-  <div class="card-head"><h3><i data-lucide="gauge"></i> Equipment &amp; Pricing<span class="step">3 / 4</span></h3></div>
-  <div class="input-group">
-    <label>MPD Make / Model</label>
-    <select id="mpdModel">
-      <option>MIDCO</option><option>GILBARCO</option><option>WAYNE</option><option>TOKHEIM</option><option>TATSUNO</option><option>OTHER</option>
-    </select>
+  <div class="card-head"><span class="stepno">3</span><h3><i data-lucide="gauge"></i> Equipment &amp; Pricing</h3></div>
+  <div class="grid-2">
+    <div class="input-group">
+      <label>MPD Make / Model</label>
+      <select id="mpdModel">
+        <option>MIDCO</option><option>GILBARCO</option><option>WAYNE</option><option>TOKHEIM</option><option>TATSUNO</option><option>OTHER</option>
+      </select>
+    </div>
+    <div class="input-group" id="fc-serial">
+      <label>Machine Serial No. <em>*</em></label>
+      <input type="text" id="machineSerial" placeholder="e.g. TS2024K118" autocapitalize="characters" autocomplete="off">
+      <span class="errmsg">Required</span>
+    </div>
   </div>
   <div class="grid-2">
     <div class="input-group">
@@ -396,7 +429,7 @@ button{font-family:inherit;}
 
 <!-- ═══ Attachments ═══ -->
 <section class="content-card">
-  <div class="card-head"><h3><i data-lucide="paperclip"></i> Full Page Attachments<span class="step">4 / 4</span></h3></div>
+  <div class="card-head"><span class="stepno">4</span><h3><i data-lucide="paperclip"></i> Full Page Attachments</h3></div>
   <p style="font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Photos are added as extra pages in the PDF. Crop, straighten and position each one before saving.</p>
   <div class="att-grid" id="attGrid">
     <div id="slot-cert"></div>
@@ -406,9 +439,9 @@ button{font-family:inherit;}
 </section>
 
 <!-- hidden file inputs -->
-<input type="file" id="certFile" accept="image/*" style="display:none">
-<input type="file" id="receiptFile" accept="image/*" style="display:none">
-<input type="file" id="extraFile" accept="image/*" style="display:none">
+<input type="file" id="certFile" accept="image/*,application/pdf" style="display:none">
+<input type="file" id="receiptFile" accept="image/*,application/pdf" style="display:none">
+<input type="file" id="extraFile" accept="image/*,application/pdf" style="display:none">
 
 <!-- ═══ ACTION BUTTONS — stacked, in-flow ═══ -->
 <div class="actions-stack">
@@ -438,9 +471,10 @@ button{font-family:inherit;}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <footer class="foot">
-  <div class="foot-badge">
-    <div class="fb-ico"><i data-lucide="fuel"></i></div>
-    <div class="fb-text"><div class="l1">Built for</div><div class="l2">Bahar Service Station</div></div>
+  <div class="foot-credit">
+    <span>BPCL Weights &amp; Measures Reimbursement Tool</span>
+    <span class="dot">•</span>
+    <span>Built by <span class="brand">velocity.logs</span></span>
   </div>
 </footer>
 
@@ -480,13 +514,40 @@ function getFinancialYear(dateStr){
 }
 function reIcons(){ if(window.lucide) lucide.createIcons(); }
 
-/* ── auto-fill helpers ── */
-function autoInvNo(){
-  const cc = $('dealerCode').value.trim();
-  const inv = $('invoiceNo');
-  if(!inv._userEdited){ inv.value = cc ? `${cc}/WM0001` : ''; }
+/* ── Invoice number: DD + Mon (e.g. "Aug") + YY + dealer code + a per-device
+   unique code, max 16 chars ── e.g. 04Aug26119934001
+   Budget: date 7 + dealer 6 + code 3 = 16. No room left for the machine
+   serial once dealer code takes its full 6 chars — it stays a required
+   field and still prints on the invoice, just isn't part of the number.
+   The sequence part comes from a localStorage counter that only advances once per
+   NEW invoice (on first generation, or after Reset) — so retyping the date/dealer
+   code while filling the form doesn't burn through codes, but every finished
+   invoice gets a code that has never been used on this device before. ── */
+const MONTH_ABBR = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+let currentInvSeq = null;
+function cleanAlnum(s){ return (s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function nextInvSeq(){
+  let n = parseInt(localStorage.getItem('bss_invoice_seq')||'0', 10) + 1;
+  localStorage.setItem('bss_invoice_seq', String(n));
+  return n.toString(36).toUpperCase().padStart(3,'0');
 }
-$('invoiceNo').addEventListener('input', ()=>{ $('invoiceNo')._userEdited = true; });
+function ensureInvSeq(){
+  if(currentInvSeq === null) currentInvSeq = nextInvSeq();
+  return currentInvSeq;
+}
+function onInvoiceNoManualEdit(){ $('invoiceNo')._userEdited = true; }
+function updateInvoiceNo(){
+  const inv = $('invoiceNo');
+  if(inv._userEdited) return;
+  const dateVal = $('invoiceDate').value;
+  if(!dateVal) return;
+  const [y,m,d] = dateVal.split('-');
+  const mon = MONTH_ABBR[parseInt(m,10)-1] || '';
+  const dateStr = `${d}${mon}${y.slice(-2)}`;               // e.g. 04Aug26 — 7 chars
+  const dealerPart = cleanAlnum($('dealerCode').value).slice(0,6);
+  const seq = ensureInvSeq();
+  inv.value = `${dateStr}${dealerPart}${seq}`.slice(0,16);
+}
 
 function onGstinInput(){
   const el = $('gstin');
@@ -522,23 +583,25 @@ function recalc(){
 function renderSlot(target){
   const meta = ATT_META[target];
   const host = $('slot-'+target);
-  const img = images[target];
-  if(img){
+  const arr = images[target];
+  if(arr && arr.length){
+    const multi = arr.length > 1;
     host.innerHTML = `
       <div class="att-preview">
-        <img src="${img}" alt="${meta.label}">
+        <img src="${arr[0]}" alt="${meta.label}">
+        ${multi?`<div class="page-badge">${arr.length} pages</div>`:''}
         <div class="att-bar">
           <div class="chk"><i data-lucide="check"></i></div>
           <div class="actions">
-            <button class="abtn" onclick="event.stopPropagation();reeditImage('${target}')" aria-label="Edit"><i data-lucide="pencil"></i></button>
+            ${!multi?`<button class="abtn" onclick="event.stopPropagation();reeditImage('${target}')" aria-label="Edit"><i data-lucide="pencil"></i></button>`:''}
             <button class="abtn" onclick="event.stopPropagation();removeImage('${target}')" aria-label="Remove"><i data-lucide="x"></i></button>
           </div>
         </div>
-        <div class="fname">${meta.label}</div>
+        <div class="fname">${meta.label}${multi?` · ${arr.length} pages`:''}</div>
       </div>`;
   } else {
     host.innerHTML = `
-      <div class="upload-box" onclick="openPicker('${target}')" role="button" tabindex="0"
+      <div class="upload-box" onclick="openPicker('${target}')" role="button" tabindex="0" style="border-top:3px solid ${meta.badgeIco};"
            onkeydown="if(event.key==='Enter'||event.key===' ')openPicker('${target}')">
         <div class="u-ico" style="background:${meta.badge};color:${meta.badgeIco};"><i data-lucide="${meta.icon}"></i></div>
         <div class="u-text">${meta.label}</div>
@@ -548,18 +611,50 @@ function renderSlot(target){
   reIcons();
 }
 function removeImage(target){ images[target] = null; renderSlot(target); }
-function reeditImage(target){ if(images[target]) openCropper(images[target], target); }
+function reeditImage(target){ const arr = images[target]; if(arr && arr.length===1) openCropper(arr[0], target); }
 
 function openPicker(target){
-  // Let the OS handle it: on phones, accept="image/*" already surfaces the
-  // native Camera / Photo Library / Files chooser. On desktop it opens the file dialog.
+  // Native picker: on Android/iOS, accept="image/*,application/pdf" surfaces the
+  // OS chooser (Camera / Photos / Files). On desktop it's a plain file dialog.
   $(target+'File').click();
 }
 
+if(window.pdfjsLib){
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+async function extractPdfPages(arrayBuffer){
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const pages = [];
+  for(let i=1; i<=pdf.numPages; i++){
+    const page = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width; canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    pages.push(canvas.toDataURL('image/jpeg', 0.92));
+  }
+  return pages;
+}
+
 ['cert','receipt','extra'].forEach(t=>{
-  $(t+'File').addEventListener('change', e=>{
+  $(t+'File').addEventListener('change', async e=>{
     const file = e.target.files[0];
     if(!file) return;
+    if(file.type === 'application/pdf'){
+      toast('Reading PDF…');
+      try{
+        const buf = await file.arrayBuffer();
+        const pages = await extractPdfPages(buf);
+        images[t] = pages;
+        renderSlot(t);
+        toast(`Added ${pages.length} page${pages.length>1?'s':''} from PDF`);
+      }catch(err){
+        console.error(err);
+        toast('Could not read that PDF.', true);
+      }
+      e.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = ()=> openCropper(reader.result, t);
     reader.readAsDataURL(file);
@@ -716,7 +811,7 @@ function applyCrop(){
   ctx.fillStyle = '#fff'; ctx.fillRect(0,0,out.width,out.height);
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, out.width, out.height);
   const dataUrl = out.toDataURL('image/jpeg', 0.92);
-  images[cropS.target] = dataUrl;
+  images[cropS.target] = [dataUrl];
   renderSlot(cropS.target);
   cancelCrop();
   toast('Photo added');
@@ -728,7 +823,7 @@ function applyCrop(){
 function validate(){
   const req = [
     ['fc-station','stationName'], ['fc-gstin','gstin'], ['fc-invd','invoiceDate'],
-    ['fc-sd','stampDate'], ['fc-wn','wmCertNo'], ['fc-wd','wmCertDate'],
+    ['fc-sd','stampDate'], ['fc-wn','wmCertNo'], ['fc-wd','wmCertDate'], ['fc-serial','machineSerial'],
   ];
   let ok = true;
   req.forEach(([fid,vid])=>{
@@ -753,7 +848,7 @@ function buildInvoiceHTML(){
   const vendorCode = $('vendorCode').value.trim();
   const gstin = $('gstin').value.trim().toUpperCase();
   const panNo = $('panNo').value.trim();
-  const invoiceNo = $('invoiceNo').value.trim() || (dealerCode+'/WM0001');
+  const invoiceNo = $('invoiceNo').value.trim() || 'N/A';
   const invoiceDate = $('invoiceDate').value;
   const stampDate = $('stampDate').value;
   const wmCertNo = $('wmCertNo').value.trim();
@@ -769,117 +864,120 @@ function buildInvoiceHTML(){
 
   const addlRow = addl>0 ? `
       <tr>
-        <td style="border:1px solid #444;padding:6px;text-align:center;">2</td>
-        <td style="border:1px solid #444;padding:6px;text-align:center;">996211</td>
-        <td style="border:1px solid #444;padding:6px;">Additional Charges / Conveyance</td>
-        <td style="border:1px solid #444;padding:6px;text-align:center;">1</td>
-        <td style="border:1px solid #444;padding:6px;text-align:right;">${addl.toFixed(2)}</td>
-        <td style="border:1px solid #444;padding:6px;text-align:right;">${addl.toFixed(2)}</td>
+        <td style="border:1px solid #000;padding:8px 7px;text-align:center;">2</td>
+        <td style="border:1px solid #000;padding:8px 7px;text-align:center;">996211</td>
+        <td style="border:1px solid #000;padding:8px 7px;">Additional Charges / Conveyance</td>
+        <td style="border:1px solid #000;padding:8px 7px;text-align:center;">1</td>
+        <td style="border:1px solid #000;padding:8px 7px;text-align:right;">${addl.toFixed(2)}</td>
+        <td style="border:1px solid #000;padding:8px 7px;text-align:right;">${addl.toFixed(2)}</td>
       </tr>` : '';
 
   return `
-<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#000;background:#fff;width:794px;padding:30px 36px;line-height:1.5;">
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:11.5px;color:#000;background:#fff;width:794px;padding:34px 44px;line-height:1.5;">
 
-  <!-- ── Station Letterhead ── -->
-  <div style="text-align:center;border-bottom:3px double #10233F;margin-bottom:14px;padding-bottom:12px;">
-    <div style="font-size:25px;font-weight:800;color:#10233F;letter-spacing:.4px;">M/S. ${stationName}</div>
-    <div style="font-size:13.5px;font-weight:700;color:#111;margin-top:5px;letter-spacing:.3px;">DEALER: BHARAT PETROLEUM CORP LTD.</div>
-    <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11.5px;padding:0 4px;">
+  <!-- ── Station Letterhead (own tinted box, sits above the main frame) ── -->
+  <div style="text-align:center;border:1px solid #DCE3EE;background:#F4F7FB;border-radius:3px;padding:22px 16px;margin-bottom:20px;">
+    <div style="font-size:22px;font-weight:800;color:#10233F;letter-spacing:.4px;">M/S. ${stationName}</div>
+    <div style="font-size:12.5px;font-weight:700;color:#161616;margin-top:5px;letter-spacing:.3px;">DEALER: BHARAT PETROLEUM CORP LTD.</div>
+    <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;padding:0 24px;">
       <div><strong>GSTIN:</strong> ${gstin||'N/A'}</div>
       <div><strong>PAN NO:</strong> ${panNo||'N/A'}</div>
     </div>
   </div>
 
-  <div style="text-align:center;font-size:19px;font-weight:800;letter-spacing:2.5px;margin-bottom:16px;">INVOICE</div>
+  <!-- ── Main document frame — one continuous box, matches the reference invoice ── -->
+  <div style="border:2px solid #000;">
 
-  <!-- ── Meta block ── -->
-  <table style="width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:14px;">
-    <tr>
-      <td style="padding:2px 0;width:50%;">INVOICE NO: <strong>${invoiceNo}</strong></td>
-      <td style="padding:2px 0;">VENDOR CODE: <strong>${vendorCode||'N/A'}</strong></td>
-    </tr>
-    <tr>
-      <td style="padding:2px 0;">INVOICE DATE: <strong>${fmtDate(invoiceDate)}</strong></td>
-      <td style="padding:2px 0;">GSTN NO: <strong>${gstin||'N/A'}</strong></td>
-    </tr>
-    <tr>
-      <td style="padding:2px 0;"></td>
-      <td style="padding:2px 0;">PAN NO: <strong>${panNo||'N/A'}</strong></td>
-    </tr>
-  </table>
+    <div style="text-align:center;font-size:19px;font-weight:800;letter-spacing:1.5px;padding:14px 0 12px;border-bottom:1px solid #000;">INVOICE</div>
 
-  <div style="font-size:12px;font-weight:700;margin-bottom:14px;">Subject: Reimbursement of Stamping Fee</div>
-
-  <div style="display:flex;gap:26px;margin-bottom:12px;">
-    <div style="flex:1;">
-      <div style="font-weight:700;font-size:11.5px;margin-bottom:3px;">Consignee/Buyer Address:</div>
-      <div style="font-size:11px;line-height:1.6;">
-        Bharat Petroleum Corporation Limited<br>
-        Bharat Bhavan, Plot No.31<br>
-        Prince Gulam Md.Shah Road,<br>
-        Golf Green, Kolkata-700095
-      </div>
-    </div>
-    <div style="flex:1;">
-      <div style="font-weight:700;font-size:11.5px;margin-bottom:3px;">Billing Address:</div>
-      <div style="font-size:11px;line-height:1.6;">
-        M/s Bharat Petroleum Corporation Limited<br>
-        Business Excellence center (BPEC)<br>
-        Plot No.6, Sector-2<br>
-        Behind CIDCO Garden. Kahargar,<br>
-        NAVI MUMBAI-410210
-      </div>
-    </div>
-  </div>
-
-  <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;border-top:1px solid #444;border-bottom:1px solid #444;padding:6px 1px;margin-bottom:14px;">
-    <div>BPCL PAN NO: ${BPCL_PAN}</div>
-    <div>GSTN: ${BPCL_GSTN}</div>
-  </div>
-
-  <table style="width:100%;border-collapse:collapse;margin-bottom:8px;font-size:11.5px;">
-    <thead>
+    <!-- meta table -->
+    <table style="width:100%;border-collapse:collapse;font-size:11.5px;">
       <tr>
-        <th style="border:1px solid #444;padding:6px;">SR NO.</th>
-        <th style="border:1px solid #444;padding:6px;">HSN/SAC</th>
-        <th style="border:1px solid #444;padding:6px;">Description</th>
-        <th style="border:1px solid #444;padding:6px;">QNTY</th>
-        <th style="border:1px solid #444;padding:6px;">RATE</th>
-        <th style="border:1px solid #444;padding:6px;">Amount</th>
+        <td style="border:1px solid #000;padding:9px 14px;width:50%;"><strong>INVOICE NO:</strong>&nbsp; ${invoiceNo}</td>
+        <td style="border:1px solid #000;padding:9px 14px;"><strong>VENDOR CODE :</strong>&nbsp; ${vendorCode||'N/A'}</td>
       </tr>
-    </thead>
-    <tbody>
       <tr>
-        <td style="border:1px solid #444;padding:6px;text-align:center;">1</td>
-        <td style="border:1px solid #444;padding:6px;text-align:center;">996211</td>
-        <td style="border:1px solid #444;padding:6px;">Stamping fee for the year ${year}</td>
-        <td style="border:1px solid #444;padding:6px;text-align:center;">${nozzles}</td>
-        <td style="border:1px solid #444;padding:6px;text-align:right;">${rate.toFixed(2)}</td>
-        <td style="border:1px solid #444;padding:6px;text-align:right;">${stampingFee.toFixed(2)}</td>
+        <td style="border:1px solid #000;padding:9px 14px;"><strong>INVOICE DATE:</strong>&nbsp; ${fmtDate(invoiceDate)}</td>
+        <td style="border:1px solid #000;padding:9px 14px;"><strong>GSTN NO :</strong>&nbsp; ${gstin||'N/A'}</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #000;padding:9px 14px;">&nbsp;</td>
+        <td style="border:1px solid #000;padding:9px 14px;"><strong>PAN NO :</strong>&nbsp; ${panNo||'N/A'}</td>
+      </tr>
+    </table>
+
+    <div style="text-align:center;font-weight:700;text-decoration:underline;font-size:12.5px;padding:14px 0;">Subject: Reimbursement of Stamping Fee</div>
+
+    <!-- consignee / billing address box -->
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <tr>
+        <td style="border:1px solid #000;padding:11px 14px;width:50%;vertical-align:top;">
+          <div style="font-weight:700;margin-bottom:5px;">Consignee/Buyer Address:</div>
+          <div style="font-weight:700;">Bharat Petroleum Corporation Limited</div>
+          <div style="line-height:1.65;">Bharat Bhavan, Plot No.31<br>Prince Gulam Md.Shah Road,<br>Golf Green, Kolkata-700095</div>
+        </td>
+        <td style="border:1px solid #000;padding:11px 14px;vertical-align:top;">
+          <div style="font-weight:700;margin-bottom:5px;">Billing Address:</div>
+          <div style="font-weight:700;">M/s Bharat Petroleum Corporation Limited</div>
+          <div style="line-height:1.65;">Business Excellence center (BPEC)<br>Plot No.6, Sector-2<br>Behind CIDCO Garden. Kahargar,<br>NAVI MUMBAI-410210</div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="border:1px solid #000;padding:8px 14px;font-weight:700;">BPCL PAN NO:${BPCL_PAN}&nbsp;&nbsp;&nbsp;&nbsp;GSTN : ${BPCL_GSTN}</td>
+      </tr>
+    </table>
+
+    <!-- item table -->
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <tr>
+        <td style="border:1px solid #000;padding:7px;font-weight:700;width:8%;text-align:center;">SR NO.</td>
+        <td style="border:1px solid #000;padding:7px;font-weight:700;width:11%;text-align:center;">HSN/SAC</td>
+        <td style="border:1px solid #000;padding:7px;font-weight:700;">Description</td>
+        <td style="border:1px solid #000;padding:7px;font-weight:700;width:9%;text-align:center;">QNTY</td>
+        <td style="border:1px solid #000;padding:7px;font-weight:700;width:12%;text-align:center;">RATE</td>
+        <td style="border:1px solid #000;padding:7px;font-weight:700;width:13%;text-align:center;">Amount</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #000;padding:8px 7px;text-align:center;">1</td>
+        <td style="border:1px solid #000;padding:8px 7px;text-align:center;">996211</td>
+        <td style="border:1px solid #000;padding:8px 7px;">Stamping fee for the year ${year}</td>
+        <td style="border:1px solid #000;padding:8px 7px;text-align:center;">${nozzles}</td>
+        <td style="border:1px solid #000;padding:8px 7px;text-align:right;">${rate.toFixed(2)}</td>
+        <td style="border:1px solid #000;padding:8px 7px;text-align:right;">${stampingFee.toFixed(2)}</td>
       </tr>${addlRow}
-    </tbody>
-  </table>
+    </table>
 
-  <div style="font-size:11.5px;font-style:italic;margin-bottom:10px;">(Rs. ${numWords(total)})</div>
+    <!-- amount-in-words + CGST / SGST / TOTAL -->
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <tr>
+        <td rowspan="3" style="border:1px solid #000;padding:10px 14px;font-weight:700;width:60%;vertical-align:middle;">(Rs. ${numWords(total)})</td>
+        <td style="border:1px solid #000;padding:6px 14px;width:22%;">CGST</td>
+        <td style="border:1px solid #000;padding:6px 14px;text-align:right;width:18%;">NA</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #000;padding:6px 14px;">SGST</td>
+        <td style="border:1px solid #000;padding:6px 14px;text-align:right;">NA</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #000;padding:7px 14px;font-weight:800;">TOTAL</td>
+        <td style="border:1px solid #000;padding:7px 14px;text-align:right;font-weight:800;">${total.toFixed(2)}</td>
+      </tr>
+    </table>
 
-  <table style="width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:16px;">
-    <tr><td style="padding:2px 0;width:82%;text-align:right;">CGST</td><td style="padding:2px 0;text-align:right;">NA</td></tr>
-    <tr><td style="padding:2px 0;text-align:right;">SGST</td><td style="padding:2px 0;text-align:right;">NA</td></tr>
-    <tr>
-      <td style="padding:7px 0 3px;text-align:right;font-weight:800;font-size:13.5px;border-top:1.5px solid #000;">TOTAL</td>
-      <td style="padding:7px 0 3px;text-align:right;font-weight:800;font-size:13.5px;border-top:1.5px solid #000;">${total.toFixed(2)}</td>
-    </tr>
-  </table>
+    <!-- enclosure -->
+    <div style="border:1px solid #000;padding:10px 14px;font-size:11px;line-height:1.9;">
+      <div><span style="font-weight:700;text-decoration:underline;">Enclosure:</span>&nbsp;&nbsp;Original Receipt GRN No. ${grnNo||'N/A'}&nbsp;&nbsp;Dated: ${fmtDate(grnDate)}</div>
+      <div style="padding-left:64px;">Original Certificate No- ${wmCertNo||'N/A'}&nbsp;&nbsp;Dated: ${fmtDate(wmCertDate)}</div>
+    </div>
 
-  <div style="font-size:11.5px;margin-bottom:4px;">Enclosure: Original Receipt GRN No. ${grnNo||'N/A'} Dated: ${fmtDate(grnDate)}</div>
-  <div style="font-size:11.5px;margin-bottom:36px;">Original Certificate No- ${wmCertNo||'N/A'} Dated: ${fmtDate(wmCertDate)}</div>
+    <!-- signature -->
+    <div style="border:1px solid #000;border-top:none;min-height:112px;padding:16px 20px;text-align:right;">
+      <div style="font-weight:700;font-size:12px;">For ${stationName}</div>
+      <div style="height:44px;"></div>
+      <div style="font-size:10.5px;">(Name/Signature/Seal of the Dealer)</div>
+    </div>
 
-  <div style="text-align:right;">
-    <div style="font-size:12px;font-weight:700;">For ${stationName}</div>
-    <div style="height:46px;"></div>
-    <div style="font-size:10.5px;color:#444;">(Name/Signature/Seal of the Dealer)</div>
   </div>
-
 </div>`;
 }
 
@@ -925,7 +1023,10 @@ function doGeneratePDF(){
 
     let pages = 1;
     ['cert','receipt','extra'].forEach(t=>{
-      if(images[t]){ pdf.addPage(); addImagePage(pdf, images[t], pW, pH); pages++; }
+      const arr = images[t];
+      if(arr && arr.length){
+        arr.forEach(imgSrc=>{ pdf.addPage(); addImagePage(pdf, imgSrc, pW, pH); pages++; });
+      }
     });
 
     const safeInv = ($('invoiceNo').value.trim() || 'Draft').replace(/[/\\?%*:|"<>]/g,'-');
@@ -964,7 +1065,9 @@ function executeReset(){
   ['cert','receipt','extra'].forEach(t=>{ images[t]=null; renderSlot(t); });
   document.querySelectorAll('.input-group').forEach(f=>f.classList.remove('err'));
   $('invoiceNo')._userEdited = false;
+  currentInvSeq = null;
   setDefaultDates();
+  updateInvoiceNo();
   recalc();
   localStorage.removeItem('bss_wm_data');
   toast('Form reset');
@@ -1012,6 +1115,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   setDefaultDates();
   loadLocal();
   ['cert','receipt','extra'].forEach(renderSlot);
+  updateInvoiceNo();
   recalc();
 });
 </script>
