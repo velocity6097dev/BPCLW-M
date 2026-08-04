@@ -15,14 +15,16 @@
 <style>
 /* ══════════════════════════════════════════════
    Bahar Service Station — W&M Reimbursement Tool
-   Palette: ink navy + fuel amber, ledger mono numerals
+   Layout: content-card / input-group pattern (reimbursement.js)
+   Click-feedback: color-shift + touch-press pattern (index.html)
+   Palette: ink navy + fuel amber
    ══════════════════════════════════════════════ */
 :root{
   --ink:#10233F; --ink-2:#17325B; --ink-3:#0B1A30;
   --paper:#EEF1F7; --card:#FFFFFF; --line:#DEE4EF; --line-2:#E9EDF4;
   --muted:#64708A; --muted-2:#8996AC;
   --amber:#E2790E; --amber-deep:#B85F09; --amber-pale:#FDF1E2;
-  --good:#178A63; --good-pale:#E7F6EF;
+  --good:#178A63; --good-deep:#0F7A55; --good-pale:#E7F6EF;
   --bad:#D64545; --bad-pale:#FCEAEA;
   --text:#101B2D;
   --radius:16px; --radius-sm:10px; --touch:46px;
@@ -39,7 +41,7 @@ body{
     var(--paper);
   color:var(--text);
   min-height:100vh;
-  padding:0 clamp(10px,3vw,20px) calc(96px + var(--sab));
+  padding:0 clamp(10px,3vw,20px) 40px;
   padding-left:calc(clamp(10px,3vw,20px) + var(--sal));
   padding-right:calc(clamp(10px,3vw,20px) + var(--sar));
   overflow-x:hidden;
@@ -71,125 +73,81 @@ button{font-family:inherit;}
 .topbar-title{flex:1;min-width:0;overflow:hidden;}
 .topbar-title h1{font-size:clamp(13px,3.4vw,17px);font-weight:700;color:#fff;letter-spacing:.2px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .topbar-title p{font-size:clamp(9.5px,2.4vw,11px);color:rgba(255,255,255,.6);margin-top:2px;font-weight:500;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.topbar-live{
-  display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;
-  padding-left:12px;border-left:1.5px solid rgba(255,255,255,.15);
-}
+.topbar-live{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;padding-left:12px;border-left:1.5px solid rgba(255,255,255,.15);}
 .topbar-live .lbl{font-size:8.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.5);}
 .topbar-live .val{font-size:clamp(13px,3.6vw,16px);font-weight:700;color:var(--amber);transition:transform .25s ease;}
 .topbar-live .val.tick{animation:ticker .32s ease;}
 @keyframes ticker{0%{transform:translateY(-6px) scale(1.08);opacity:.4;}100%{transform:translateY(0) scale(1);opacity:1;}}
 
-/* ── Cards ── */
-.card{
-  background:var(--card);
-  border-radius:var(--radius);
-  box-shadow:0 3px 18px rgba(16,27,45,0.07), 0 1px 3px rgba(16,27,45,0.05);
+/* ══════════════════════════════════════════════
+   content-card / card-head / input-group — reimbursement.js pattern
+   ══════════════════════════════════════════════ */
+.content-card{
+  background:var(--card);border-radius:var(--radius);
+  padding:clamp(16px,4vw,22px);margin:0 auto 20px;
+  max-width:880px;width:100%;
+  box-shadow:0 2px 14px rgba(16,27,45,0.07), 0 1px 3px rgba(16,27,45,0.05);
   border:1px solid var(--line-2);
-  max-width:880px;width:100%;margin:0 auto clamp(14px,3.5vw,20px);
-  overflow:hidden;
   animation:cardIn .45s cubic-bezier(.22,.9,.32,1.15) backwards;
 }
 @keyframes cardIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-.card-head{
-  display:flex;align-items:center;gap:9px;
-  padding:clamp(12px,2.8vw,15px) clamp(14px,3.5vw,26px);
-  border-bottom:1px solid var(--line-2);
-  background:linear-gradient(180deg,#FBFCFE,#F7F9FC);
-}
-.card-head .ico{
-  width:28px;height:28px;border-radius:8px;flex-shrink:0;
-  background:var(--amber-pale);color:var(--amber-deep);
-  display:flex;align-items:center;justify-content:center;
-}
-.card-head .ico svg{width:16px;height:16px;}
-.card-head h2{font-size:clamp(12.5px,2.9vw,14px);font-weight:700;color:var(--ink);letter-spacing:.2px;}
+.card-head{margin-bottom:16px;}
+.card-head h3{display:flex;align-items:center;gap:9px;font-size:clamp(13.5px,3.2vw,15px);font-weight:700;color:var(--ink);letter-spacing:.1px;}
+.card-head h3 svg{width:19px;height:19px;color:var(--amber);flex-shrink:0;}
 .card-head span.step{font-size:9.5px;font-weight:700;color:var(--muted-2);letter-spacing:.6px;text-transform:uppercase;margin-left:auto;}
-.card-body{padding:clamp(14px,3.5vw,24px);}
 
-/* ── Grids ── */
-.grid2{display:grid;grid-template-columns:1fr;gap:clamp(10px,2.5vw,14px);}
-.grid3{display:grid;grid-template-columns:1fr;gap:clamp(10px,2.5vw,14px);}
-@media (min-width:560px){.grid2{grid-template-columns:1fr 1fr;gap:14px 18px;}.grid3{grid-template-columns:1fr 1fr;gap:14px 18px;}}
-@media (min-width:760px){.grid3{grid-template-columns:1fr 1fr 1fr;}}
+.grid-2{display:grid;grid-template-columns:1fr;gap:14px;}
+@media (min-width:480px){.grid-2{grid-template-columns:1fr 1fr;}}
 
-/* ── Fields ── */
-.field{display:flex;flex-direction:column;gap:5px;position:relative;}
-.field label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.3px;display:flex;align-items:center;gap:5px;}
-.field label em{color:var(--bad);font-style:normal;}
-.field .hint{font-size:10px;color:var(--muted-2);margin-top:-1px;}
-.field input,.field select{
-  min-height:var(--touch);
-  padding:11px 13px;border:1.5px solid var(--line);border-radius:var(--radius-sm);
+.input-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.input-group:last-child{margin-bottom:0;}
+.input-group label{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.2px;display:flex;align-items:center;gap:5px;}
+.input-group label em{color:var(--bad);font-style:normal;}
+.input-group .hint{font-size:10px;color:var(--muted-2);font-weight:500;}
+.input-group input,.input-group select{
+  min-height:var(--touch);padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;
   font-family:inherit;font-size:16px;color:var(--text);background:#FCFDFE;
   outline:none;width:100%;-webkit-appearance:none;appearance:none;
-  transition:border-color .16s,box-shadow .16s,background .16s;
+  transition:border-color .18s,box-shadow .18s,background .18s;
 }
-.field select{
+.input-group select{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364708A' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;
 }
-.field input:focus,.field select:focus{border-color:var(--amber);background:#fff;box-shadow:0 0 0 4px rgba(226,121,14,0.12);}
-.field input.mono{font-weight:600;}
-.field.err input,.field.err select{border-color:var(--bad);background:var(--bad-pale);}
-.field .errmsg{display:none;font-size:10.5px;color:var(--bad);font-weight:600;}
-.field.err .errmsg{display:block;}
-.badge-inline{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;margin-top:2px;width:fit-content;transition:all .2s;}
-.badge-inline.ok{background:var(--good-pale);color:var(--good);}
-.badge-inline.warn{background:var(--amber-pale);color:var(--amber-deep);}
+.input-group input:focus,.input-group select:focus{border-color:var(--amber);background:#fff;box-shadow:0 0 0 4px rgba(226,121,14,0.12);}
+.input-group input.mono{font-weight:600;}
+.input-group.err input,.input-group.err select{border-color:var(--bad);background:var(--bad-pale);}
+.input-group .errmsg{display:none;font-size:10.5px;color:var(--bad);font-weight:600;}
+.input-group.err .errmsg{display:block;}
 
-/* ── MPD count pills ── */
-.mpd-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
-.mpd-pill{
-  min-height:var(--touch);border-radius:12px;border:1.5px solid var(--line);
-  background:#FCFDFE;color:var(--ink);font-weight:700;font-size:15px;cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;
-  transition:all .18s cubic-bezier(.3,.9,.4,1.2);
-}
-.mpd-pill small{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:.3px;text-transform:uppercase;}
-.mpd-pill:active{transform:scale(.95);}
-.mpd-pill.on{background:linear-gradient(135deg,var(--ink),var(--ink-2));border-color:var(--ink);color:#fff;transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,35,63,0.3);}
-.mpd-pill.on small{color:rgba(255,255,255,.65);}
+/* ── Summary box (reimbursement.js: tinted panel, dashed divider, bold grand total) ── */
+.summary-box{background:var(--amber-pale);border:1px solid rgba(226,121,14,.18);border-radius:12px;padding:15px 16px;margin-top:6px;}
+.summary-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;}
+.summary-row .l{color:var(--muted);font-weight:600;}
+.summary-row .v{font-weight:700;color:var(--ink);}
+.summary-row.grand{border-top:1.5px dashed rgba(226,121,14,.35);margin-top:8px;padding-top:11px;font-size:16px;}
+.summary-row.grand .l,.summary-row.grand .v{color:var(--amber-deep);font-weight:800;}
+.summary-row.grand .v{font-size:19px;}
 
-.mpd-card{
-  border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;
-  background:#FCFDFE;animation:cardIn .3s ease backwards;position:relative;
-}
-.mpd-card .num{
-  position:absolute;top:-9px;left:12px;background:var(--ink);color:#fff;font-size:10px;font-weight:700;
-  padding:2px 9px;border-radius:20px;letter-spacing:.3px;
-}
-.mpd-card .field{margin-bottom:10px;}
-.mpd-card .field:last-child{margin-bottom:0;}
-
-.totals-strip{
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 16px;
-  background:linear-gradient(135deg,var(--ink),var(--ink-2));
-  border-radius:var(--radius-sm);padding:14px 16px;margin-top:14px;color:#fff;
-}
-.totals-strip .t-item{display:flex;flex-direction:column;gap:2px;}
-.totals-strip .t-item .l{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.55);}
-.totals-strip .t-item .v{font-size:clamp(14px,3.6vw,17px);font-weight:700;}
-.totals-strip .t-item.grand .v{color:var(--amber);font-size:clamp(17px,4.4vw,21px);}
-
-/* ── Upload boxes ── */
+/* ── Attachments (AttachmentCard pattern) ── */
+.att-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
 .upload-box{
-  border:2px dashed var(--line);border-radius:var(--radius);padding:20px 14px;text-align:center;
-  cursor:pointer;position:relative;overflow:hidden;background:#FCFDFE;
-  transition:border-color .2s,background .2s,transform .15s;
+  border:1.5px dashed var(--line);border-radius:14px;padding:16px 8px;text-align:center;
+  cursor:pointer;position:relative;overflow:hidden;background:var(--paper);
+  min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  transition:border-color .18s,background .18s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
 }
-.upload-box:active{transform:scale(.98);}
-.upload-box.drag{border-color:var(--amber);background:var(--amber-pale);}
+.upload-box:hover,.upload-box:active{border-color:var(--amber);background:var(--amber-pale);}
 .upload-box .u-ico{
-  width:46px;height:46px;border-radius:13px;margin:0 auto 10px;
+  width:42px;height:42px;border-radius:12px;
   background:var(--amber-pale);color:var(--amber-deep);
   display:flex;align-items:center;justify-content:center;
   animation:float 3.2s ease-in-out infinite;
 }
-.upload-box .u-ico svg{width:22px;height:22px;}
+.upload-box .u-ico svg{width:20px;height:20px;}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
-.upload-box .u-text{font-size:12.5px;font-weight:700;color:var(--ink);}
-.upload-box .u-sub{font-size:10.5px;color:var(--muted);margin-top:3px;}
+.upload-box .u-text{font-size:11.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+.upload-box .u-sub{font-size:9.5px;color:var(--muted);}
 .upload-box::after{
   content:'';position:absolute;inset:0;
   background:linear-gradient(120deg,transparent 30%,rgba(226,121,14,0.08) 50%,transparent 70%);
@@ -199,110 +157,87 @@ button{font-family:inherit;}
 @keyframes sheen{to{transform:translateX(100%);}}
 
 .att-preview{
-  border-radius:var(--radius);overflow:hidden;position:relative;border:1.5px solid var(--good);
-  background:#000;animation:popIn .35s cubic-bezier(.24,1.1,.4,1.1) backwards;
+  border-radius:14px;overflow:hidden;position:relative;border:1.5px solid var(--good);
+  background:#000;min-height:118px;animation:popIn .35s cubic-bezier(.24,1.1,.4,1.1) backwards;
 }
 @keyframes popIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
-.att-preview img{width:100%;height:150px;object-fit:cover;display:block;}
+.att-preview img{width:100%;height:118px;object-fit:cover;display:block;}
 .att-preview .att-bar{
-  position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:space-between;padding:8px;
+  position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:space-between;padding:7px;
   background:linear-gradient(180deg,rgba(0,0,0,.45),transparent 40%,transparent 65%,rgba(0,0,0,.5));
 }
 .att-preview .chk{
-  width:22px;height:22px;border-radius:50%;background:var(--good);display:flex;align-items:center;justify-content:center;
+  width:20px;height:20px;border-radius:50%;background:var(--good);display:flex;align-items:center;justify-content:center;
   animation:popIn .3s .1s cubic-bezier(.24,1.4,.4,1.1) backwards;
 }
-.att-preview .chk svg{width:13px;height:13px;color:#fff;}
-.att-preview .actions{display:flex;gap:6px;}
+.att-preview .chk svg{width:12px;height:12px;color:#fff;}
+.att-preview .actions{display:flex;gap:5px;}
 .att-preview .abtn{
-  width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
+  width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
   border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;
 }
-.att-preview .abtn svg{width:14px;height:14px;}
+.att-preview .abtn svg{width:12px;height:12px;}
 .att-preview .fname{
-  position:absolute;left:0;right:0;bottom:0;padding:7px 10px;font-size:10px;font-weight:600;color:#fff;
+  position:absolute;left:0;right:0;bottom:0;padding:6px 8px;font-size:9.5px;font-weight:600;color:#fff;
   background:linear-gradient(0deg,rgba(0,0,0,.6),transparent);
 }
+@media (max-width:420px){ .att-grid{gap:7px;} .upload-box{padding:12px 5px;min-height:104px;} .upload-box .u-text{font-size:10px;} .upload-box .u-sub{display:none;} }
 
-/* ── Buttons ── */
+/* ── Action buttons — stacked, full-width, in-flow (reimbursement.js pattern) ── */
+.actions-stack{max-width:880px;margin:26px auto 0;display:flex;flex-direction:column;gap:12px;}
 .btn{
-  min-height:50px;border-radius:13px;font-weight:700;font-size:14.5px;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,box-shadow .12s,opacity .12s;
+  min-height:52px;padding:14px 20px;border-radius:12px;font-weight:700;font-size:15px;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  transition:all .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;
 }
-.btn svg{width:17px;height:17px;}
-.btn:active{transform:scale(.97);}
-.btn-primary{background:linear-gradient(135deg,var(--amber),var(--amber-deep));color:#fff;box-shadow:0 6px 18px rgba(226,121,14,0.35);}
-.btn-outline{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
-.btn-ghost{background:transparent;color:var(--bad);border:1.5px solid var(--line);}
-.btn:disabled{opacity:.55;cursor:not-allowed;}
-
-/* ── Action bar (sticky bottom) ── */
-.actionbar{
-  position:fixed;left:0;right:0;bottom:0;z-index:300;
-  padding:10px clamp(10px,3vw,20px) calc(10px + var(--sab));
-  background:rgba(255,255,255,.92);backdrop-filter:blur(14px);
-  border-top:1px solid var(--line-2);
-  display:flex;gap:8px;max-width:920px;margin:0 auto;
+.btn svg{width:19px;height:19px;}
+.btn:disabled{opacity:.6;cursor:not-allowed;}
+.btn-blue{background:#2563EB;color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.30);}
+.btn-blue:hover{box-shadow:0 6px 20px rgba(37,99,235,.40);transform:translateY(-1px);}
+.btn-green{background:var(--good);color:#fff;box-shadow:0 4px 14px rgba(23,138,99,.30);}
+.btn-green:hover{box-shadow:0 6px 20px rgba(23,138,99,.40);transform:translateY(-1px);}
+.btn-line{background:transparent;color:var(--bad);border:1.5px solid var(--line);}
+.btn-line:hover{background:var(--bad-pale);border-color:var(--bad);}
+/* touch-specific press feedback, no hover on touch devices — mirrors index.html */
+@media (hover:none){
+  .btn-blue:active{transform:scale(.97);box-shadow:0 2px 8px rgba(37,99,235,.28);}
+  .btn-green:active{transform:scale(.97);box-shadow:0 2px 8px rgba(23,138,99,.28);}
+  .btn-line:active{background:var(--bad-pale);}
 }
-.actionbar .btn-ghost,.actionbar .btn-outline{flex:0 0 auto;width:50px;padding:0;}
-.actionbar .btn-primary{flex:1;}
 
-/* ── Bottom sheet (source picker) ── */
-.sheet-wrap{position:fixed;inset:0;z-index:11000;display:flex;flex-direction:column;justify-content:flex-end;}
-.sheet-backdrop{position:absolute;inset:0;background:rgba(9,17,32,.55);backdrop-filter:blur(3px);animation:fadeIn .2s ease;}
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-.sheet{
-  position:relative;background:#fff;border-radius:22px 22px 0 0;padding:8px 0 calc(20px + var(--sab));
-  animation:sheetUp .3s cubic-bezier(.28,.85,.3,1.15);box-shadow:0 -8px 40px rgba(9,17,32,.25);
-}
 @keyframes sheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
-.sheet-handle{display:flex;justify-content:center;padding:6px 0 14px;}
-.sheet-handle span{width:38px;height:4px;border-radius:99px;background:var(--line);}
-.sheet-title{padding:0 22px 16px;}
-.sheet-title .eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted-2);}
-.sheet-title .name{font-size:16px;font-weight:700;color:var(--ink);margin-top:2px;}
-.sheet-opts{display:flex;flex-direction:column;gap:8px;padding:0 14px;}
-.sheet-opt{
-  display:flex;align-items:center;gap:14px;width:100%;padding:14px;border-radius:15px;border:none;
-  background:#F8FAFD;cursor:pointer;text-align:left;transition:transform .1s,background .15s;
-}
-.sheet-opt:active{transform:scale(.98);background:#F0F4F9;}
-.sheet-opt .oico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.sheet-opt .oico svg{width:20px;height:20px;}
-.sheet-opt .otext .t1{font-weight:700;font-size:14.5px;color:var(--ink);}
-.sheet-opt .otext .t2{font-size:11px;color:var(--muted);margin-top:1px;}
-.sheet-cancel{margin:12px 14px 0;padding:14px;border-radius:15px;background:#F8FAFD;border:none;color:var(--muted);font-weight:700;font-size:14.5px;width:calc(100% - 28px);cursor:pointer;}
 
-/* ── Cropper modal ── */
+/* ── Cropper modal — real drag-handle crop box (no slider) ── */
 .crop-modal{position:fixed;inset:0;z-index:12000;background:#0A0F1A;display:flex;flex-direction:column;animation:fadeIn .2s ease;}
-.crop-top{
-  display:flex;align-items:center;justify-content:space-between;color:#fff;
-  padding:calc(var(--sat) + 14px) 18px 14px;
-}
+.crop-top{display:flex;align-items:center;justify-content:space-between;color:#fff;padding:calc(var(--sat) + 14px) 18px 14px;}
 .crop-top button{background:none;border:none;color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;cursor:pointer;padding:6px;}
 .crop-top button.done{color:var(--amber);}
 .crop-top .ttl{font-size:12px;font-weight:700;letter-spacing:1.2px;color:rgba(255,255,255,.65);}
-.crop-stage{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;padding:10px 16px;}
-.crop-viewport{position:relative;width:100%;max-width:520px;aspect-ratio:4/3;border-radius:14px;overflow:hidden;box-shadow:0 0 0 3000px rgba(0,0,0,.72), 0 0 0 1.5px rgba(255,255,255,.35);}
-.crop-viewport canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab;}
-.crop-viewport canvas:active{cursor:grabbing;}
-.crop-hint{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:10.5px;color:rgba(255,255,255,.4);font-weight:500;letter-spacing:.2px;}
-.crop-toolbar{padding:14px 22px calc(18px + var(--sab));background:#0D1424;display:flex;flex-direction:column;gap:14px;}
-.crop-zoom{display:flex;align-items:center;gap:12px;}
-.crop-zoom svg{color:rgba(255,255,255,.55);flex-shrink:0;}
-.crop-zoom svg:last-child{width:19px;height:19px;}
-.crop-zoom svg:first-child{width:13px;height:13px;}
-.crop-zoom input[type=range]{
-  flex:1;-webkit-appearance:none;height:4px;border-radius:99px;background:rgba(255,255,255,.18);outline:none;
-}
-.crop-zoom input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--amber);border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);}
-.crop-actions{display:flex;gap:10px;}
-.crop-actions button{
-  flex:1;min-height:46px;border-radius:12px;border:1.5px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);
+.crop-stage{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:16px;touch-action:none;}
+.crop-imgwrap{position:relative;touch-action:none;}
+.crop-imgwrap img{display:block;width:100%;height:100%;user-select:none;-webkit-user-drag:none;pointer-events:none;}
+.crop-box{position:absolute;border:2px solid #fff;box-shadow:0 0 0 3000px rgba(0,0,0,.62);cursor:move;touch-action:none;}
+.crop-box .third{position:absolute;background:rgba(255,255,255,.28);}
+.crop-box .third.v1{left:33.333%;top:0;bottom:0;width:1px;}
+.crop-box .third.v2{left:66.666%;top:0;bottom:0;width:1px;}
+.crop-box .third.h1{top:33.333%;left:0;right:0;height:1px;}
+.crop-box .third.h2{top:66.666%;left:0;right:0;height:1px;}
+.crop-handle{position:absolute;width:30px;height:30px;margin:-15px;touch-action:none;}
+.crop-handle::after{content:'';position:absolute;top:8px;left:8px;width:14px;height:14px;border:3px solid var(--amber);}
+.crop-handle.nw{top:0;left:0;}.crop-handle.nw::after{border-right:none;border-bottom:none;}
+.crop-handle.ne{top:0;left:100%;}.crop-handle.ne::after{border-left:none;border-bottom:none;}
+.crop-handle.sw{top:100%;left:0;}.crop-handle.sw::after{border-right:none;border-top:none;}
+.crop-handle.se{top:100%;left:100%;}.crop-handle.se::after{border-left:none;border-top:none;}
+.crop-hint{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:10.5px;color:rgba(255,255,255,.4);font-weight:500;letter-spacing:.2px;pointer-events:none;}
+.crop-toolbar{padding:14px 22px calc(18px + var(--sab));background:#0D1424;display:flex;gap:10px;}
+.crop-toolbar button{
+  flex:1;min-height:48px;border-radius:12px;border:1.5px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);
   color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:background .15s;
 }
-.crop-actions button svg{width:16px;height:16px;}
-.crop-actions button:active{background:rgba(255,255,255,.12);}
+.crop-toolbar button svg{width:16px;height:16px;}
+.crop-toolbar button:hover,.crop-toolbar button:active{background:rgba(255,255,255,.14);}
 
 /* ── Preview overlay ── */
 .overlay{position:fixed;inset:0;z-index:10500;background:rgba(9,17,32,.6);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;}
@@ -319,7 +254,7 @@ button{font-family:inherit;}
 
 /* ── Toast ── */
 .toast{
-  position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);z-index:15000;
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);z-index:15000;
   background:var(--ink);color:#fff;padding:12px 20px;border-radius:99px;font-size:13px;font-weight:600;
   opacity:0;pointer-events:none;transition:all .25s cubic-bezier(.3,.9,.4,1.1);box-shadow:0 8px 24px rgba(0,0,0,.25);
   display:flex;align-items:center;gap:8px;white-space:nowrap;max-width:90vw;
@@ -329,7 +264,7 @@ button{font-family:inherit;}
 .toast svg{width:15px;height:15px;flex-shrink:0;}
 
 /* ── Footer ── */
-.foot{text-align:center;padding:22px 20px 6px;}
+.foot{text-align:center;padding:26px 20px 6px;}
 .foot-badge{display:inline-flex;align-items:center;gap:9px;background:#fff;border:1.5px solid var(--line-2);border-radius:40px;padding:7px 18px 7px 8px;box-shadow:0 2px 12px rgba(16,27,45,.08);}
 .foot-badge .fb-ico{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--ink),var(--ink-2));display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .foot-badge .fb-ico svg{width:15px;height:15px;color:var(--amber);}
@@ -356,119 +291,117 @@ button{font-family:inherit;}
   </div>
 </header>
 
-<!-- ═══ SECTION 1: STATION & DEALER ═══ -->
-<section class="card" style="animation-delay:.02s">
-  <div class="card-head"><div class="ico"><i data-lucide="store"></i></div><h2>Station &amp; Dealer Details</h2><span class="step">1 / 4</span></div>
-  <div class="card-body">
-    <div class="grid2">
-      <div class="field" id="fc-station">
-        <label>Station Name <em>*</em></label>
-        <input type="text" id="stationName" placeholder="e.g. Bahar Service Station" autocapitalize="words" autocomplete="organization">
-        <span class="errmsg">Required</span>
-      </div>
-      <div class="field" id="fc-cc">
-        <label>Dealer Code</label>
-        <input type="text" id="dealerCode" placeholder="e.g. 119934" inputmode="numeric" autocomplete="off" oninput="autoInvNo()">
-      </div>
-      <div class="field" id="fc-vc">
-        <label>Vendor Code</label>
-        <input type="text" id="vendorCode" placeholder="e.g. 375911" inputmode="numeric" autocomplete="off">
-      </div>
-      <div class="field" id="fc-gstin">
-        <label>GSTIN <em>*</em></label>
-        <input type="text" id="gstin" placeholder="e.g. 19AAAAA0000A1Z5" maxlength="15" style="text-transform:uppercase;" autocapitalize="characters" autocomplete="off" oninput="onGstinInput()">
-        <span class="errmsg">Required</span>
-      </div>
-      <div class="field" id="fc-pan">
-        <label>PAN No. <span class="hint" style="margin:0;">(auto)</span></label>
-        <input type="text" id="panNo" readonly style="background:var(--paper);color:var(--muted);">
-      </div>
-      <div class="field">
-        <label>Invoice No.</label>
-        <input type="text" id="invoiceNo" placeholder="e.g. 119934/WM0001" autocomplete="off">
-        <span class="hint">Auto-suggested from dealer code — edit freely</span>
-      </div>
-      <div class="field" id="fc-invd">
-        <label>Invoice Date <em>*</em></label>
-        <input type="date" id="invoiceDate">
-        <span class="errmsg">Required</span>
-      </div>
+<!-- ═══ Station & Dealer Details ═══ -->
+<section class="content-card">
+  <div class="card-head"><h3><i data-lucide="store"></i> Station &amp; Dealer Details<span class="step">1 / 4</span></h3></div>
+  <div class="grid-2">
+    <div class="input-group" id="fc-station">
+      <label>Station Name <em>*</em></label>
+      <input type="text" id="stationName" placeholder="e.g. Bahar Service Station" autocapitalize="words" autocomplete="organization">
+      <span class="errmsg">Required</span>
+    </div>
+    <div class="input-group" id="fc-gstin">
+      <label>GSTIN <em>*</em></label>
+      <input type="text" id="gstin" placeholder="e.g. 19AAAAA0000A1Z5" maxlength="15" style="text-transform:uppercase;" autocapitalize="characters" autocomplete="off" oninput="onGstinInput()">
+      <span class="errmsg">Required</span>
+    </div>
+  </div>
+  <div class="grid-2" style="margin-top:2px;">
+    <div class="input-group" id="fc-cc">
+      <label>Dealer Code</label>
+      <input type="text" id="dealerCode" placeholder="e.g. 119934" inputmode="numeric" autocomplete="off" oninput="autoInvNo()">
+    </div>
+    <div class="input-group" id="fc-vc">
+      <label>Vendor Code</label>
+      <input type="text" id="vendorCode" placeholder="e.g. 375911" inputmode="numeric" autocomplete="off">
+    </div>
+  </div>
+  <div class="input-group">
+    <label>PAN No. <span class="hint">(auto)</span></label>
+    <input type="text" id="panNo" readonly style="background:var(--paper);color:var(--muted);">
+  </div>
+  <div class="input-group">
+    <label>Invoice No.</label>
+    <input type="text" id="invoiceNo" placeholder="e.g. 119934/WM0001" autocomplete="off">
+    <span class="hint">Auto-suggested from dealer code — edit freely</span>
+  </div>
+  <div class="input-group" id="fc-invd">
+    <label>Invoice Date <em>*</em></label>
+    <input type="date" id="invoiceDate">
+    <span class="errmsg">Required</span>
+  </div>
+</section>
+
+<!-- ═══ Stamping & W&M Certificate ═══ -->
+<section class="content-card">
+  <div class="card-head"><h3><i data-lucide="stamp"></i> Stamping &amp; W&amp;M Certificate<span class="step">2 / 4</span></h3></div>
+  <div class="grid-2">
+    <div class="input-group" id="fc-sd">
+      <label>Stamping Date <em>*</em></label>
+      <input type="date" id="stampDate">
+      <span class="errmsg">Required</span>
+    </div>
+    <div class="input-group" id="fc-wd">
+      <label>W&amp;M Certificate Date <em>*</em></label>
+      <input type="date" id="wmCertDate">
+      <span class="errmsg">Required</span>
+    </div>
+  </div>
+  <div class="input-group" id="fc-wn">
+    <label>W&amp;M Certificate No. <em>*</em></label>
+    <input type="text" id="wmCertNo" placeholder="e.g. 91202502714443" inputmode="numeric" autocomplete="off">
+    <span class="errmsg">Required</span>
+  </div>
+  <div class="grid-2">
+    <div class="input-group">
+      <label>GRN No.</label>
+      <input type="text" id="grnNo" placeholder="e.g. 46166" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label>GRN Date</label>
+      <input type="date" id="grnDate">
     </div>
   </div>
 </section>
 
-<!-- ═══ SECTION 2: STAMPING & CERTIFICATE ═══ -->
-<section class="card" style="animation-delay:.06s">
-  <div class="card-head"><div class="ico"><i data-lucide="stamp"></i></div><h2>Stamping &amp; W&amp;M Certificate</h2><span class="step">2 / 4</span></div>
-  <div class="card-body">
-    <div class="grid3">
-      <div class="field" id="fc-sd">
-        <label>Stamping Date <em>*</em></label>
-        <input type="date" id="stampDate">
-        <span class="errmsg">Required</span>
-      </div>
-      <div class="field" id="fc-wn">
-        <label>W&amp;M Certificate No. <em>*</em></label>
-        <input type="text" id="wmCertNo" placeholder="e.g. 91202502714443" inputmode="numeric" autocomplete="off">
-        <span class="errmsg">Required</span>
-      </div>
-      <div class="field" id="fc-wd">
-        <label>W&amp;M Certificate Date <em>*</em></label>
-        <input type="date" id="wmCertDate">
-        <span class="errmsg">Required</span>
-      </div>
-      <div class="field">
-        <label>GRN No.</label>
-        <input type="text" id="grnNo" placeholder="e.g. 1920252..." inputmode="numeric" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>GRN Date</label>
-        <input type="date" id="grnDate">
-      </div>
-      <div class="field">
-        <label>MPD Make</label>
-        <select id="mpdModel">
-          <option>MIDCO</option><option>GILBARCO</option><option>WAYNE</option><option>TOKHEIM</option><option>TATSUNO</option><option>OTHER</option>
-        </select>
-      </div>
+<!-- ═══ Equipment & Pricing ═══ -->
+<section class="content-card">
+  <div class="card-head"><h3><i data-lucide="gauge"></i> Equipment &amp; Pricing<span class="step">3 / 4</span></h3></div>
+  <div class="input-group">
+    <label>MPD Make / Model</label>
+    <select id="mpdModel">
+      <option>MIDCO</option><option>GILBARCO</option><option>WAYNE</option><option>TOKHEIM</option><option>TATSUNO</option><option>OTHER</option>
+    </select>
+  </div>
+  <div class="grid-2">
+    <div class="input-group">
+      <label>No. of Nozzles</label>
+      <input type="number" id="mpdNozzles" class="mono" placeholder="0" min="0" step="1" inputmode="numeric" oninput="recalc()">
     </div>
+    <div class="input-group">
+      <label>Rate per Nozzle (₹)</label>
+      <input type="text" id="mpdRate" class="mono" value="1500.00" readonly style="background:var(--paper);color:var(--muted);">
+    </div>
+  </div>
+  <div class="input-group" style="margin-bottom:0;">
+    <label>Additional Charges / Conveyance (₹)</label>
+    <input type="number" id="addlAmt" class="mono" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="recalc()">
+  </div>
+  <div class="summary-box" style="margin-top:16px;">
+    <div class="summary-row"><span class="l">Stamping Fee (<span id="sbNozzles">0</span> × ₹1500)</span><span class="v mono" id="sbBase">₹0.00</span></div>
+    <div class="summary-row"><span class="l">Additional Charges</span><span class="v mono" id="sbAddl">₹0.00</span></div>
+    <div class="summary-row grand"><span class="l">GRAND TOTAL</span><span class="v mono" id="sbTotal">₹0.00</span></div>
   </div>
 </section>
 
-<!-- ═══ SECTION 3: DISPENSING UNITS ═══ -->
-<section class="card" style="animation-delay:.10s">
-  <div class="card-head"><div class="ico"><i data-lucide="gauge"></i></div><h2>Dispensing Units</h2><span class="step">3 / 4</span></div>
-  <div class="card-body">
-    <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px;">How many dispensing units were stamped?</div>
-    <div class="mpd-row" id="mpdRow">
-      <button class="mpd-pill" onclick="setMpdCount(1)">1<small>Unit</small></button>
-      <button class="mpd-pill" onclick="setMpdCount(2)">2<small>Units</small></button>
-      <button class="mpd-pill" onclick="setMpdCount(3)">3<small>Units</small></button>
-      <button class="mpd-pill" onclick="setMpdCount(4)">4<small>Units</small></button>
-    </div>
-    <div id="mpdCards"></div>
-    <div class="field" style="margin-top:4px;">
-      <label>Additional Charges / Conveyance (₹)</label>
-      <input type="number" id="addlAmt" class="mono" placeholder="0.00" min="0" step="0.01" inputmode="decimal" oninput="recalc()">
-    </div>
-    <div class="totals-strip">
-      <div class="t-item"><span class="l">Units</span><span class="v mono" id="sbUnits">0</span></div>
-      <div class="t-item"><span class="l">Base Amount</span><span class="v mono" id="sbBase">₹0</span></div>
-      <div class="t-item grand"><span class="l">Grand Total</span><span class="v mono" id="sbTotal">₹0</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ SECTION 4: ATTACHMENTS ═══ -->
-<section class="card" style="animation-delay:.14s">
-  <div class="card-head"><div class="ico"><i data-lucide="paperclip"></i></div><h2>Attach Documents</h2><span class="step">4 / 4</span></div>
-  <div class="card-body">
-    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Photos are added as extra pages in the PDF. Crop, straighten and zoom each one before saving.</p>
-    <div class="grid3" id="attGrid">
-      <div id="slot-cert"></div>
-      <div id="slot-receipt"></div>
-      <div id="slot-extra"></div>
-    </div>
+<!-- ═══ Attachments ═══ -->
+<section class="content-card">
+  <div class="card-head"><h3><i data-lucide="paperclip"></i> Full Page Attachments<span class="step">4 / 4</span></h3></div>
+  <p style="font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Photos are added as extra pages in the PDF. Crop, straighten and position each one before saving.</p>
+  <div class="att-grid" id="attGrid">
+    <div id="slot-cert"></div>
+    <div id="slot-receipt"></div>
+    <div id="slot-extra"></div>
   </div>
 </section>
 
@@ -477,11 +410,11 @@ button{font-family:inherit;}
 <input type="file" id="receiptFile" accept="image/*" style="display:none">
 <input type="file" id="extraFile" accept="image/*" style="display:none">
 
-<!-- ═══ ACTION BAR ═══ -->
-<div class="actionbar">
-  <button class="btn btn-ghost" onclick="confirmReset()" aria-label="Reset"><i data-lucide="rotate-ccw"></i></button>
-  <button class="btn btn-outline" onclick="doPreview()" aria-label="Preview"><i data-lucide="eye"></i></button>
-  <button class="btn btn-primary" id="downloadBtn" onclick="doGeneratePDF()"><i data-lucide="download"></i> Download PDF</button>
+<!-- ═══ ACTION BUTTONS — stacked, in-flow ═══ -->
+<div class="actions-stack">
+  <button class="btn btn-blue" onclick="doPreview()"><i data-lucide="eye"></i> Preview Details</button>
+  <button class="btn btn-green" id="downloadBtn" onclick="doGeneratePDF()"><i data-lucide="download"></i> Download &amp; Share</button>
+  <button class="btn btn-line" onclick="confirmReset()"><i data-lucide="rotate-ccw"></i> Reset</button>
 </div>
 
 <!-- ═══ PREVIEW OVERLAY ═══ -->
@@ -494,13 +427,12 @@ button{font-family:inherit;}
     <div class="preview-hint">Scroll to review the full letter before downloading</div>
     <div id="previewHost"></div>
     <div class="ov-foot">
-      <button class="btn btn-outline" onclick="closeOv()">Close</button>
-      <button class="btn btn-primary" onclick="doGeneratePDF()"><i data-lucide="download"></i> Download PDF</button>
+      <button class="btn btn-line" style="border:1.5px solid var(--line);color:var(--ink);" onclick="closeOv()">Close</button>
+      <button class="btn btn-green" onclick="doGeneratePDF()"><i data-lucide="download"></i> Download PDF</button>
     </div>
   </div>
 </div>
 
-<div id="sheetHost"></div>
 <div id="cropHost"></div>
 <div id="inv-render" style="position:absolute;left:-99999px;top:0;"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -517,9 +449,9 @@ const $ = id => document.getElementById(id);
 let N = 1;
 const images = { cert:null, receipt:null, extra:null };
 const ATT_META = {
-  cert:    { label:'W&M Certificate',  sub:'Camera or gallery · JPG, PNG', icon:'file-text',  accent:'#2563EB' },
-  receipt: { label:'Payment Receipt',  sub:'Camera or gallery · JPG, PNG', icon:'receipt',     accent:'#178A63' },
-  extra:   { label:'Extra Document',   sub:'Optional · Camera or gallery', icon:'paperclip',   accent:'#8B5CF6' },
+  cert:    { label:'W&M Cert',    sub:'Camera or gallery', icon:'file-text', badge:'#DCE9FF', badgeIco:'#2563EB' },
+  receipt: { label:'Receipt',     sub:'Camera or gallery', icon:'receipt',   badge:'#DFF5EA', badgeIco:'#178A63' },
+  extra:   { label:'Extra Doc',   sub:'Optional',          icon:'paperclip', badge:'#EDE4FF', badgeIco:'#7C3AED' },
 };
 
 /* ── generic helpers ── */
@@ -564,62 +496,18 @@ function onGstinInput(){
   saveLocal();
 }
 
-/* ── MPD dynamic rows ── */
-function setMpdCount(n){
-  N = n;
-  document.querySelectorAll('.mpd-pill').forEach((b,i)=> b.classList.toggle('on', i===n-1));
-  buildMpdCards();
-  recalc();
-}
-function buildMpdCards(){
-  const host = $('mpdCards');
-  const prev = {};
-  host.querySelectorAll('.mpd-card').forEach((c,i)=>{
-    prev[i+1] = {
-      desc: c.querySelector('.f-desc').value,
-      rcpt: c.querySelector('.f-rcpt').value,
-      amt:  c.querySelector('.f-amt').value,
-    };
-  });
-  let html = '';
-  for(let i=1;i<=N;i++){
-    const p = prev[i] || {desc:'',rcpt:'',amt:''};
-    html += `
-    <div class="mpd-card" style="animation-delay:${(i-1)*.04}s">
-      <span class="num">DU ${i}</span>
-      <div class="field">
-        <label>DU Make &amp; Serial No.</label>
-        <input type="text" class="f-desc" placeholder="e.g. TATSUNO SL-12345" value="${p.desc}">
-      </div>
-      <div class="grid2" style="margin-bottom:0;">
-        <div class="field"><label>Money Receipt No.</label><input type="text" class="f-rcpt" placeholder="Receipt / chain no." value="${p.rcpt}"></div>
-        <div class="field"><label>Amount (₹)</label><input type="number" class="f-amt mono" placeholder="1500.00" min="0" step="0.01" inputmode="decimal" value="${p.amt}" oninput="recalc()"></div>
-      </div>
-    </div>`;
-  }
-  host.innerHTML = html;
-}
-function getMpdRows(){
-  const rows = [];
-  document.querySelectorAll('#mpdCards .mpd-card').forEach((c,i)=>{
-    rows.push({
-      sr: i+1,
-      desc: c.querySelector('.f-desc').value.trim() || '—',
-      rcpt: c.querySelector('.f-rcpt').value.trim() || '—',
-      amt: parseFloat(c.querySelector('.f-amt').value) || 0,
-    });
-  });
-  return rows;
-}
+/* ── Nozzle-based pricing ── */
 let lastTotal = 0;
 function recalc(){
-  const rows = getMpdRows();
-  const base = rows.reduce((s,r)=>s+r.amt,0);
-  const addl = parseFloat($('addlAmt').value)||0;
+  const nozzles = parseInt($('mpdNozzles').value) || 0;
+  const rate = 1500;
+  const base = nozzles * rate;
+  const addl = parseFloat($('addlAmt').value) || 0;
   const total = base + addl;
-  $('sbUnits').textContent = rows.length;
-  $('sbBase').textContent = rsPlain(base).replace('.00','');
-  $('sbTotal').textContent = rsPlain(total).replace('.00','');
+  $('sbNozzles').textContent = nozzles;
+  $('sbBase').textContent = rsPlain(base);
+  $('sbAddl').textContent = rsPlain(addl);
+  $('sbTotal').textContent = rsPlain(total);
   const liveEl = $('liveTotal');
   liveEl.textContent = rsPlain(total).replace('.00','');
   if(Math.round(total) !== Math.round(lastTotal)){
@@ -629,14 +517,8 @@ function recalc(){
 }
 
 /* ══════════════════════════════════════════════
-   ATTACHMENTS — picker, bottom sheet, cropper
+   ATTACHMENTS — picker + bottom sheet
    ══════════════════════════════════════════════ */
-function isMobileUI(){
-  const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-  const touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-  return (coarse || touch) && window.innerWidth <= 900;
-}
-
 function renderSlot(target){
   const meta = ATT_META[target];
   const host = $('slot-'+target);
@@ -658,7 +540,7 @@ function renderSlot(target){
     host.innerHTML = `
       <div class="upload-box" onclick="openPicker('${target}')" role="button" tabindex="0"
            onkeydown="if(event.key==='Enter'||event.key===' ')openPicker('${target}')">
-        <div class="u-ico"><i data-lucide="${meta.icon}"></i></div>
+        <div class="u-ico" style="background:${meta.badge};color:${meta.badgeIco};"><i data-lucide="${meta.icon}"></i></div>
         <div class="u-text">${meta.label}</div>
         <div class="u-sub">${meta.sub}</div>
       </div>`;
@@ -669,40 +551,10 @@ function removeImage(target){ images[target] = null; renderSlot(target); }
 function reeditImage(target){ if(images[target]) openCropper(images[target], target); }
 
 function openPicker(target){
-  if(isMobileUI()) showSheet(target);
-  else { $(target+'File').removeAttribute('capture'); $(target+'File').click(); }
+  // Let the OS handle it: on phones, accept="image/*" already surfaces the
+  // native Camera / Photo Library / Files chooser. On desktop it opens the file dialog.
+  $(target+'File').click();
 }
-
-function showSheet(target){
-  const meta = ATT_META[target];
-  const host = $('sheetHost');
-  host.innerHTML = `
-    <div class="sheet-wrap" id="sheetWrap">
-      <div class="sheet-backdrop" onclick="closeSheet()"></div>
-      <div class="sheet">
-        <div class="sheet-handle"><span></span></div>
-        <div class="sheet-title">
-          <div class="eyebrow">Add photo for</div>
-          <div class="name">${meta.label}</div>
-        </div>
-        <div class="sheet-opts">
-          <button class="sheet-opt" onclick="pickCamera('${target}')">
-            <div class="oico" style="background:#DCE9FF;color:#2563EB;"><i data-lucide="camera"></i></div>
-            <div class="otext"><div class="t1">Take Photo</div><div class="t2">Open camera</div></div>
-          </button>
-          <button class="sheet-opt" onclick="pickGallery('${target}')">
-            <div class="oico" style="background:#EDE4FF;color:#7C3AED;"><i data-lucide="image"></i></div>
-            <div class="otext"><div class="t1">Choose from Gallery</div><div class="t2">Browse existing photos</div></div>
-          </button>
-        </div>
-        <button class="sheet-cancel" onclick="closeSheet()">Cancel</button>
-      </div>
-    </div>`;
-  reIcons();
-}
-function closeSheet(){ $('sheetHost').innerHTML=''; }
-function pickCamera(target){ closeSheet(); const inp=$(target+'File'); inp.setAttribute('capture','environment'); inp.click(); }
-function pickGallery(target){ closeSheet(); const inp=$(target+'File'); inp.removeAttribute('capture'); inp.click(); }
 
 ['cert','receipt','extra'].forEach(t=>{
   $(t+'File').addEventListener('change', e=>{
@@ -715,16 +567,20 @@ function pickGallery(target){ closeSheet(); const inp=$(target+'File'); inp.remo
   });
 });
 
-/* ── Canvas cropper: pan / pinch-zoom / wheel-zoom / 90° rotate ── */
-const crop = { img:null, target:null, scale:1, minScale:1, maxScale:1, rot:0, tx:0, ty:0, ptrs:new Map(), pinchStart:null };
+/* ══════════════════════════════════════════════
+   CROPPER — real drag-handle crop box (rule-of-thirds guide)
+   Drag corners to resize, drag inside to move, rotate 90° at a time.
+   No zoom slider — resizing the box IS the zoom.
+   ══════════════════════════════════════════════ */
+const cropS = { target:null, workingImg:null, rawSrc:null, wrapW:0, wrapH:0, box:{x:0,y:0,w:0,h:0}, mode:null, startPtr:null, startBox:null };
 
 function openCropper(dataUrl, target){
   const img = new Image();
   img.onload = ()=>{
-    crop.img = img; crop.target = target; crop.rot = 0; crop.tx = 0; crop.ty = 0;
+    cropS.target = target;
+    cropS.workingImg = img;
+    cropS.rawSrc = dataUrl;
     buildCropperDom();
-    fitCropper();
-    renderCrop();
   };
   img.src = dataUrl;
 }
@@ -736,137 +592,132 @@ function buildCropperDom(){
         <span class="ttl">ADJUST PHOTO</span>
         <button class="done" onclick="applyCrop()"><i data-lucide="check"></i> Done</button>
       </div>
-      <div class="crop-stage">
-        <div class="crop-viewport" id="cropViewport">
-          <canvas id="cropCanvas"></canvas>
+      <div class="crop-stage" id="cropStage">
+        <div class="crop-imgwrap" id="cropImgWrap">
+          <img id="cropImgEl" draggable="false" alt="">
+          <div class="crop-box" id="cropBox">
+            <div class="third v1"></div><div class="third v2"></div>
+            <div class="third h1"></div><div class="third h2"></div>
+            <div class="crop-handle nw" data-h="nw"></div>
+            <div class="crop-handle ne" data-h="ne"></div>
+            <div class="crop-handle sw" data-h="sw"></div>
+            <div class="crop-handle se" data-h="se"></div>
+          </div>
         </div>
-        <div class="crop-hint">Drag to reposition · pinch or scroll to zoom</div>
+        <div class="crop-hint">Drag corners to crop · drag inside to move</div>
       </div>
       <div class="crop-toolbar">
-        <div class="crop-zoom">
-          <i data-lucide="zoom-out"></i>
-          <input type="range" id="zoomSlider" min="0" max="100" value="0" oninput="onZoomSlider(this.value)">
-          <i data-lucide="zoom-in"></i>
-        </div>
-        <div class="crop-actions">
-          <button onclick="rotateCrop()"><i data-lucide="rotate-cw"></i> Rotate</button>
-          <button onclick="resetCrop()"><i data-lucide="refresh-ccw"></i> Reset</button>
-        </div>
+        <button onclick="rotateCrop()"><i data-lucide="rotate-cw"></i> Rotate</button>
+        <button onclick="resetCropBox()"><i data-lucide="refresh-ccw"></i> Reset</button>
       </div>
     </div>`;
   reIcons();
-  const vp = $('cropViewport');
-  const canvas = $('cropCanvas');
-  const dpr = Math.max(window.devicePixelRatio||1, 1);
-  const w = vp.clientWidth, h = vp.clientHeight;
-  canvas.width = w*dpr; canvas.height = h*dpr;
-  canvas.addEventListener('pointerdown', onPtrDown);
-  canvas.addEventListener('pointermove', onPtrMove);
-  canvas.addEventListener('pointerup', onPtrUp);
-  canvas.addEventListener('pointercancel', onPtrUp);
-  canvas.addEventListener('pointerleave', onPtrUp);
-  canvas.addEventListener('wheel', onWheel, {passive:false});
+  layoutCropper();
+  attachCropHandlers();
 }
-function rotatedDims(){
-  const sw = (crop.rot%180===0) ? crop.img.width : crop.img.height;
-  const sh = (crop.rot%180===0) ? crop.img.height : crop.img.width;
-  return {sw,sh};
+function layoutCropper(){
+  const stage = $('cropStage');
+  const maxW = stage.clientWidth - 32;
+  const maxH = stage.clientHeight - 32;
+  const img = cropS.workingImg;
+  let w = maxW, h = w * img.naturalHeight / img.naturalWidth;
+  if(h > maxH){ h = maxH; w = h * img.naturalWidth / img.naturalHeight; }
+  cropS.wrapW = w; cropS.wrapH = h;
+  const wrap = $('cropImgWrap');
+  wrap.style.width = w + 'px';
+  wrap.style.height = h + 'px';
+  $('cropImgEl').src = cropS.rawSrc;
+  cropS.box = { x:0, y:0, w:w, h:h };
+  renderBox();
 }
-function fitCropper(){
-  const canvas = $('cropCanvas');
-  const {sw,sh} = rotatedDims();
-  const cover = Math.max(canvas.width/sw, canvas.height/sh);
-  crop.minScale = cover;
-  crop.maxScale = cover*5;
-  crop.scale = cover;
-  crop.tx = 0; crop.ty = 0;
-  $('zoomSlider').value = 0;
+function renderBox(){
+  const el = $('cropBox');
+  el.style.left = cropS.box.x + 'px';
+  el.style.top = cropS.box.y + 'px';
+  el.style.width = cropS.box.w + 'px';
+  el.style.height = cropS.box.h + 'px';
 }
-function renderCrop(){
-  const canvas = $('cropCanvas');
-  const ctx = canvas.getContext('2d');
-  ctx.save();
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = '#0A0F1A';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.translate(canvas.width/2 + crop.tx, canvas.height/2 + crop.ty);
-  ctx.rotate(crop.rot * Math.PI/180);
-  ctx.scale(crop.scale, crop.scale);
-  ctx.drawImage(crop.img, -crop.img.width/2, -crop.img.height/2);
-  ctx.restore();
+function clamp(v,min,max){ return Math.min(max, Math.max(min, v)); }
+
+function attachCropHandlers(){
+  const box = $('cropBox');
+  box.addEventListener('pointerdown', e=>{
+    if(e.target.classList.contains('crop-handle')) return;
+    startCropDrag(e, 'move');
+  });
+  box.querySelectorAll('.crop-handle').forEach(h=>{
+    h.addEventListener('pointerdown', e=>{ e.stopPropagation(); startCropDrag(e, h.dataset.h); });
+  });
+  window.addEventListener('pointermove', onCropPtrMove);
+  window.addEventListener('pointerup', onCropPtrUp);
 }
-function clampPan(){
-  const canvas = $('cropCanvas');
-  const {sw,sh} = rotatedDims();
-  const w = sw*crop.scale, h = sh*crop.scale;
-  const maxX = Math.max(0,(w-canvas.width)/2);
-  const maxY = Math.max(0,(h-canvas.height)/2);
-  crop.tx = Math.min(maxX, Math.max(-maxX, crop.tx));
-  crop.ty = Math.min(maxY, Math.max(-maxY, crop.ty));
-}
-function setScale(s){
-  crop.scale = Math.min(crop.maxScale, Math.max(crop.minScale, s));
-  const pct = (crop.scale-crop.minScale)/(crop.maxScale-crop.minScale)*100;
-  $('zoomSlider').value = Math.round(pct);
-  clampPan(); renderCrop();
-}
-function onZoomSlider(val){
-  const s = crop.minScale + (crop.maxScale-crop.minScale)*(val/100);
-  crop.scale = s; clampPan(); renderCrop();
-}
-function onWheel(e){
+function startCropDrag(e, mode){
   e.preventDefault();
-  setScale(crop.scale * (1 - e.deltaY*0.0012));
+  cropS.mode = mode;
+  cropS.startPtr = { x:e.clientX, y:e.clientY };
+  cropS.startBox = { ...cropS.box };
+  if(e.target.setPointerCapture){ try{ e.target.setPointerCapture(e.pointerId); }catch(_){} }
 }
-function onPtrDown(e){
-  $('cropCanvas').setPointerCapture(e.pointerId);
-  crop.ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
-  if(crop.ptrs.size===2){
-    const pts = [...crop.ptrs.values()];
-    crop.pinchStart = { dist: Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y), scale: crop.scale };
+function onCropPtrMove(e){
+  if(!cropS.mode) return;
+  const dx = e.clientX - cropS.startPtr.x;
+  const dy = e.clientY - cropS.startPtr.y;
+  const MIN = 44;
+  const W = cropS.wrapW, H = cropS.wrapH;
+  let { x, y, w, h } = cropS.startBox;
+  if(cropS.mode === 'move'){
+    x = clamp(x + dx, 0, W - w);
+    y = clamp(y + dy, 0, H - h);
+  } else {
+    if(cropS.mode.includes('n')){ let ny = clamp(y + dy, 0, y + h - MIN); h = h + (y - ny); y = ny; }
+    if(cropS.mode.includes('s')){ h = clamp(h + dy, MIN, H - y); }
+    if(cropS.mode.includes('w')){ let nx = clamp(x + dx, 0, x + w - MIN); w = w + (x - nx); x = nx; }
+    if(cropS.mode.includes('e')){ w = clamp(w + dx, MIN, W - x); }
   }
+  cropS.box = { x, y, w, h };
+  renderBox();
 }
-function onPtrMove(e){
-  if(!crop.ptrs.has(e.pointerId)) return;
-  const prev = crop.ptrs.get(e.pointerId);
-  const cur = {x:e.clientX, y:e.clientY};
-  crop.ptrs.set(e.pointerId, cur);
-  if(crop.ptrs.size===1){
-    const dx = cur.x-prev.x, dy = cur.y-prev.y;
-    const dpr = Math.max(window.devicePixelRatio||1,1);
-    crop.tx += dx*dpr; crop.ty += dy*dpr;
-    clampPan(); renderCrop();
-  } else if(crop.ptrs.size===2 && crop.pinchStart){
-    const pts = [...crop.ptrs.values()];
-    const dist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
-    const ratio = dist / crop.pinchStart.dist;
-    setScale(crop.pinchStart.scale * ratio);
-  }
-}
-function onPtrUp(e){
-  crop.ptrs.delete(e.pointerId);
-  if(crop.ptrs.size<2) crop.pinchStart=null;
-}
+function onCropPtrUp(){ cropS.mode = null; }
+
 function rotateCrop(){
-  crop.rot = (crop.rot+90)%360;
-  fitCropper();
-  renderCrop();
+  const img = cropS.workingImg;
+  const canvas = document.createElement('canvas');
+  canvas.width = img.naturalHeight; canvas.height = img.naturalWidth;
+  const ctx = canvas.getContext('2d');
+  ctx.translate(canvas.width/2, canvas.height/2);
+  ctx.rotate(Math.PI/2);
+  ctx.drawImage(img, -img.naturalWidth/2, -img.naturalHeight/2);
+  const newSrc = canvas.toDataURL('image/jpeg', 0.95);
+  const newImg = new Image();
+  newImg.onload = ()=>{
+    cropS.workingImg = newImg;
+    cropS.rawSrc = newSrc;
+    layoutCropper();
+  };
+  newImg.src = newSrc;
 }
-function resetCrop(){ fitCropper(); renderCrop(); }
-function cancelCrop(){ $('cropHost').innerHTML=''; crop.img=null; }
+function resetCropBox(){ layoutCropper(); }
+function cancelCrop(){
+  $('cropHost').innerHTML = '';
+  window.removeEventListener('pointermove', onCropPtrMove);
+  window.removeEventListener('pointerup', onCropPtrUp);
+  cropS.workingImg = null; cropS.mode = null;
+}
 function applyCrop(){
-  const canvas = $('cropCanvas');
+  const img = cropS.workingImg;
+  const scale = img.naturalWidth / cropS.wrapW;
+  const sx = cropS.box.x*scale, sy = cropS.box.y*scale, sw = cropS.box.w*scale, sh = cropS.box.h*scale;
+  const maxDim = 1800;
+  let outW = sw, outH = sh;
+  if(Math.max(outW,outH) > maxDim){ const r = maxDim/Math.max(outW,outH); outW*=r; outH*=r; }
   const out = document.createElement('canvas');
-  out.width = canvas.width; out.height = canvas.height;
+  out.width = Math.max(1,Math.round(outW)); out.height = Math.max(1,Math.round(outH));
   const ctx = out.getContext('2d');
   ctx.fillStyle = '#fff'; ctx.fillRect(0,0,out.width,out.height);
-  ctx.translate(out.width/2 + crop.tx, out.height/2 + crop.ty);
-  ctx.rotate(crop.rot*Math.PI/180);
-  ctx.scale(crop.scale, crop.scale);
-  ctx.drawImage(crop.img, -crop.img.width/2, -crop.img.height/2);
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, out.width, out.height);
   const dataUrl = out.toDataURL('image/jpeg', 0.92);
-  images[crop.target] = dataUrl;
-  renderSlot(crop.target);
+  images[cropS.target] = dataUrl;
+  renderSlot(cropS.target);
   cancelCrop();
   toast('Photo added');
 }
@@ -889,8 +740,13 @@ function validate(){
 }
 
 /* ══════════════════════════════════════════════
-   INVOICE LETTER (PDF page 1 content)
+   INVOICE (PDF page 1 content) — matches the dealer's actual
+   tax-invoice format: fixed BPCL consignee/billing blocks,
+   single nozzle-count line item.
    ══════════════════════════════════════════════ */
+const BPCL_PAN = 'AAACB2902M';
+const BPCL_GSTN = '19AAACB2902M1ZQ';
+
 function buildInvoiceHTML(){
   const stationName = ($('stationName').value.trim() || 'BAHAR SERVICE STATION').toUpperCase();
   const dealerCode = $('dealerCode').value.trim();
@@ -904,34 +760,27 @@ function buildInvoiceHTML(){
   const wmCertDate = $('wmCertDate').value;
   const grnNo = $('grnNo').value.trim();
   const grnDate = $('grnDate').value;
-  const addl = parseFloat($('addlAmt').value)||0;
+  const nozzles = parseInt($('mpdNozzles').value) || 0;
+  const rate = 1500;
+  const stampingFee = nozzles * rate;
+  const addl = parseFloat($('addlAmt').value) || 0;
+  const total = stampingFee + addl;
   const year = getFinancialYear(stampDate);
-  const rows = getMpdRows();
-  const base = rows.reduce((s,r)=>s+r.amt,0);
-  const total = base + addl;
 
-  let rowsHtml = '';
-  rows.forEach(r=>{
-    rowsHtml += `
-      <tr>
-        <td style="border:1px solid #444;padding:6px 7px;text-align:center;">${r.sr}</td>
-        <td style="border:1px solid #444;padding:6px 7px;text-align:left;font-weight:bold;">${r.desc}</td>
-        <td style="border:1px solid #444;padding:6px 7px;text-align:center;">${r.rcpt}</td>
-        <td style="border:1px solid #444;padding:6px 7px;text-align:center;font-weight:bold;">${rsPlain(r.amt)}</td>
-        <td style="border:1px solid #444;padding:6px 7px;text-align:center;">${wmCertNo||'—'}<br><span style="font-size:10px;">${fmtDate(wmCertDate)}</span></td>
-      </tr>`;
-  });
   const addlRow = addl>0 ? `
-    <tr>
-      <td colspan="3" style="border:1px solid #444;padding:6px 7px;text-align:right;font-weight:bold;">Additional Charges / Conveyance</td>
-      <td style="border:1px solid #444;padding:6px 7px;text-align:center;font-weight:bold;">${rsPlain(addl)}</td>
-      <td style="border:1px solid #444;padding:6px 7px;"></td>
-    </tr>` : '';
+      <tr>
+        <td style="border:1px solid #444;padding:6px;text-align:center;">2</td>
+        <td style="border:1px solid #444;padding:6px;text-align:center;">996211</td>
+        <td style="border:1px solid #444;padding:6px;">Additional Charges / Conveyance</td>
+        <td style="border:1px solid #444;padding:6px;text-align:center;">1</td>
+        <td style="border:1px solid #444;padding:6px;text-align:right;">${addl.toFixed(2)}</td>
+        <td style="border:1px solid #444;padding:6px;text-align:right;">${addl.toFixed(2)}</td>
+      </tr>` : '';
 
   return `
-<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#000;background:#fff;width:794px;padding:30px 36px;line-height:1.42;">
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#000;background:#fff;width:794px;padding:30px 36px;line-height:1.5;">
 
-  <!-- ── Letterhead ── -->
+  <!-- ── Station Letterhead ── -->
   <div style="text-align:center;border-bottom:3px double #10233F;margin-bottom:14px;padding-bottom:12px;">
     <div style="font-size:25px;font-weight:800;color:#10233F;letter-spacing:.4px;">M/S. ${stationName}</div>
     <div style="font-size:13.5px;font-weight:700;color:#111;margin-top:5px;letter-spacing:.3px;">DEALER: BHARAT PETROLEUM CORP LTD.</div>
@@ -941,68 +790,94 @@ function buildInvoiceHTML(){
     </div>
   </div>
 
-  <!-- ── Meta bar ── -->
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1.5px solid #000;padding-bottom:8px;margin-bottom:10px;">
-    <div style="font-size:11px;color:#333;line-height:1.85;">
-      <div>Dealer Code: <strong>${dealerCode||'N/A'}</strong></div>
-      <div>Vendor Code: <strong>${vendorCode||'N/A'}</strong></div>
-    </div>
-    <div style="text-align:right;font-size:11.5px;line-height:1.8;">
-      <div>DATE: ${fmtDate(invoiceDate)}</div>
-      <div>INVOICE NO: ${invoiceNo}</div>
-      <div>SAC / HSN CODE: 996211</div>
-    </div>
-  </div>
+  <div style="text-align:center;font-size:19px;font-weight:800;letter-spacing:2.5px;margin-bottom:16px;">INVOICE</div>
 
-  <div style="font-size:12px;margin-bottom:10px;line-height:1.75;">
-    <div>To,</div>
-    <div><strong>THE TERRITORY MANAGER</strong></div>
-    <div><strong>B.P.C.L &ndash; RETAIL</strong></div>
-  </div>
-
-  <div style="font-size:12px;font-weight:bold;margin-bottom:10px;line-height:1.6;">
-    SUB:&nbsp; REQUEST FOR REIMBURSEMENT OF WEIGHTS AND MEASUREMENT STAMPING FEE FOR DISPENSING UNIT
-    FOR THE YEAR ${year}.&nbsp; DEALER CODE: <u>${dealerCode||'N/A'}</u> (VC: <u>${vendorCode||'N/A'}</u>)
-  </div>
-
-  <div style="margin-bottom:8px;font-size:12px;">Respected sir,</div>
-
-  <div style="font-size:12px;margin-bottom:12px;text-align:justify;line-height:1.7;">
-    Annual Stamping was carried out by the weights &amp; measurements inspector at our retail outlet in presence of
-    technician/OEM engineer. Please find enclosed herewith the original Money Receipt${grnNo?` (GRN No. ${grnNo}${grnDate?`, dated ${fmtDate(grnDate)}`:''})`:''} and
-    photocopy of the W&amp;M Certificate for reimbursement of the same. Details are as under:
-  </div>
-
-  <table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:11.5px;">
-    <thead>
-      <tr>
-        <th style="border:1px solid #444;padding:6px 7px;text-align:center;font-size:11px;">S<br>No</th>
-        <th style="border:1px solid #444;padding:6px 7px;text-align:center;font-size:11px;">DU MAKE &amp;<br>SERIAL NO</th>
-        <th style="border:1px solid #444;padding:6px 7px;text-align:center;font-size:11px;">MONEY RECEIPT<br>No.</th>
-        <th style="border:1px solid #444;padding:6px 7px;text-align:center;font-size:11px;">AMOUNT</th>
-        <th style="border:1px solid #444;padding:6px 7px;text-align:center;font-size:11px;">W &amp; M CERTIFICATE<br>No. &amp; DATE</th>
-      </tr>
-    </thead>
-    <tbody>${rowsHtml}</tbody>
-    ${addlRow?`<tfoot>${addlRow}</tfoot>`:''}
+  <!-- ── Meta block ── -->
+  <table style="width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:14px;">
+    <tr>
+      <td style="padding:2px 0;width:50%;">INVOICE NO: <strong>${invoiceNo}</strong></td>
+      <td style="padding:2px 0;">VENDOR CODE: <strong>${vendorCode||'N/A'}</strong></td>
+    </tr>
+    <tr>
+      <td style="padding:2px 0;">INVOICE DATE: <strong>${fmtDate(invoiceDate)}</strong></td>
+      <td style="padding:2px 0;">GSTN NO: <strong>${gstin||'N/A'}</strong></td>
+    </tr>
+    <tr>
+      <td style="padding:2px 0;"></td>
+      <td style="padding:2px 0;">PAN NO: <strong>${panNo||'N/A'}</strong></td>
+    </tr>
   </table>
 
-  <div style="font-size:12px;margin-bottom:14px;">
-    <strong>Total Amount: ${rsPlain(total)}</strong>&emsp;(<em>Rupees ${numWords(total)}</em>)
-  </div>
+  <div style="font-size:12px;font-weight:700;margin-bottom:14px;">Subject: Reimbursement of Stamping Fee</div>
 
-  <div style="font-size:12px;line-height:1.85;">
-    <div>Kindly reimburse the same at the earliest and oblige.</div><br>
-    <div>Thanking You,</div>
-    <div>Yours faithfully,</div>
-  </div>
-
-  <div style="display:flex;justify-content:flex-start;margin-top:42px;">
-    <div style="text-align:center;width:42%;">
-      <div style="height:40px;border-bottom:1px solid #666;margin-bottom:5px;"></div>
-      <div style="font-size:10.5px;color:#444;">Dealer / Outlet Owner Signature</div>
-      <div style="font-size:11px;font-weight:600;margin-top:2px;">M/S. ${stationName}</div>
+  <div style="display:flex;gap:26px;margin-bottom:12px;">
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:11.5px;margin-bottom:3px;">Consignee/Buyer Address:</div>
+      <div style="font-size:11px;line-height:1.6;">
+        Bharat Petroleum Corporation Limited<br>
+        Bharat Bhavan, Plot No.31<br>
+        Prince Gulam Md.Shah Road,<br>
+        Golf Green, Kolkata-700095
+      </div>
     </div>
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:11.5px;margin-bottom:3px;">Billing Address:</div>
+      <div style="font-size:11px;line-height:1.6;">
+        M/s Bharat Petroleum Corporation Limited<br>
+        Business Excellence center (BPEC)<br>
+        Plot No.6, Sector-2<br>
+        Behind CIDCO Garden. Kahargar,<br>
+        NAVI MUMBAI-410210
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;border-top:1px solid #444;border-bottom:1px solid #444;padding:6px 1px;margin-bottom:14px;">
+    <div>BPCL PAN NO: ${BPCL_PAN}</div>
+    <div>GSTN: ${BPCL_GSTN}</div>
+  </div>
+
+  <table style="width:100%;border-collapse:collapse;margin-bottom:8px;font-size:11.5px;">
+    <thead>
+      <tr>
+        <th style="border:1px solid #444;padding:6px;">SR NO.</th>
+        <th style="border:1px solid #444;padding:6px;">HSN/SAC</th>
+        <th style="border:1px solid #444;padding:6px;">Description</th>
+        <th style="border:1px solid #444;padding:6px;">QNTY</th>
+        <th style="border:1px solid #444;padding:6px;">RATE</th>
+        <th style="border:1px solid #444;padding:6px;">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border:1px solid #444;padding:6px;text-align:center;">1</td>
+        <td style="border:1px solid #444;padding:6px;text-align:center;">996211</td>
+        <td style="border:1px solid #444;padding:6px;">Stamping fee for the year ${year}</td>
+        <td style="border:1px solid #444;padding:6px;text-align:center;">${nozzles}</td>
+        <td style="border:1px solid #444;padding:6px;text-align:right;">${rate.toFixed(2)}</td>
+        <td style="border:1px solid #444;padding:6px;text-align:right;">${stampingFee.toFixed(2)}</td>
+      </tr>${addlRow}
+    </tbody>
+  </table>
+
+  <div style="font-size:11.5px;font-style:italic;margin-bottom:10px;">(Rs. ${numWords(total)})</div>
+
+  <table style="width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:16px;">
+    <tr><td style="padding:2px 0;width:82%;text-align:right;">CGST</td><td style="padding:2px 0;text-align:right;">NA</td></tr>
+    <tr><td style="padding:2px 0;text-align:right;">SGST</td><td style="padding:2px 0;text-align:right;">NA</td></tr>
+    <tr>
+      <td style="padding:7px 0 3px;text-align:right;font-weight:800;font-size:13.5px;border-top:1.5px solid #000;">TOTAL</td>
+      <td style="padding:7px 0 3px;text-align:right;font-weight:800;font-size:13.5px;border-top:1.5px solid #000;">${total.toFixed(2)}</td>
+    </tr>
+  </table>
+
+  <div style="font-size:11.5px;margin-bottom:4px;">Enclosure: Original Receipt GRN No. ${grnNo||'N/A'} Dated: ${fmtDate(grnDate)}</div>
+  <div style="font-size:11.5px;margin-bottom:36px;">Original Certificate No- ${wmCertNo||'N/A'} Dated: ${fmtDate(wmCertDate)}</div>
+
+  <div style="text-align:right;">
+    <div style="font-size:12px;font-weight:700;">For ${stationName}</div>
+    <div style="height:46px;"></div>
+    <div style="font-size:10.5px;color:#444;">(Name/Signature/Seal of the Dealer)</div>
   </div>
 
 </div>`;
@@ -1062,7 +937,7 @@ function doGeneratePDF(){
   }).finally(()=>{
     el.innerHTML = '';
     btn.disabled = false;
-    btn.innerHTML = '<i data-lucide="download"></i> Download PDF';
+    btn.innerHTML = '<i data-lucide="download"></i> Download &amp; Share';
     reIcons();
   });
 }
@@ -1087,10 +962,10 @@ function executeReset(){
   document.querySelectorAll('input').forEach(el=>{ if(!el.readOnly) el.value=''; });
   $('mpdModel').selectedIndex = 0;
   ['cert','receipt','extra'].forEach(t=>{ images[t]=null; renderSlot(t); });
-  document.querySelectorAll('.field').forEach(f=>f.classList.remove('err'));
+  document.querySelectorAll('.input-group').forEach(f=>f.classList.remove('err'));
   $('invoiceNo')._userEdited = false;
   setDefaultDates();
-  setMpdCount(1);
+  recalc();
   localStorage.removeItem('bss_wm_data');
   toast('Form reset');
 }
@@ -1137,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   setDefaultDates();
   loadLocal();
   ['cert','receipt','extra'].forEach(renderSlot);
-  setMpdCount(1);
+  recalc();
 });
 </script>
 </body>
