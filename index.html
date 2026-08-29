@@ -161,6 +161,39 @@ button{font-family:inherit;}
   -webkit-appearance:none;
   appearance:none;
 }
+/* ── Date field shadow-picker pattern ──────────────────────────────────
+   Android Chrome/WebView still renders its own dropdown/chevron next to
+   the calendar-picker-indicator on some builds even with the indicator
+   hidden above. Fix: the VISIBLE field is a plain readonly text input
+   (shows DD/MM/YYYY, carries the orange calendar icon); the real
+   <input type="date"> lives on top of it, fully transparent and
+   non-interactive, and is opened programmatically via showPicker()/
+   click() when the visible field is tapped. This keeps the native
+   Android date picker/calendar functionality intact while giving us
+   full control over what's drawn on screen. */
+.date-field{position:relative;}
+.date-field .date-native{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  pointer-events:none;
+  border:0;
+  padding:0;
+  margin:0;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.input-group input.date-display{
+  color-scheme:light;
+  padding-right:40px;
+  cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23E2790E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:19px 19px;
+}
 .input-group input:focus,.input-group select:focus{border-color:var(--amber);background:#fff;box-shadow:0 0 0 4px rgba(226,121,14,0.12);}
 .input-group input.mono{font-weight:600;}
 .input-group.err input,.input-group.err select{border-color:var(--bad);background:var(--bad-pale);}
@@ -374,7 +407,10 @@ button{font-family:inherit;}
   </div>
   <div class="input-group" id="fc-invd">
     <label>Invoice Date <em>*</em></label>
-    <input type="date" id="invoiceDate" oninput="updateInvoiceNo()" onclick="try{this.showPicker&&this.showPicker()}catch(e){}">
+    <div class="date-field">
+      <input type="text" id="invoiceDateDisplay" class="date-display" placeholder="DD/MM/YYYY" readonly inputmode="none" onclick="openDatePicker('invoiceDate')">
+      <input type="date" id="invoiceDate" class="date-native" tabindex="-1" oninput="syncDateDisplay('invoiceDate','invoiceDateDisplay');updateInvoiceNo()" onchange="syncDateDisplay('invoiceDate','invoiceDateDisplay');updateInvoiceNo()">
+    </div>
     <span class="errmsg">Required</span>
   </div>
 </section>
@@ -385,12 +421,18 @@ button{font-family:inherit;}
   <div class="grid-2">
     <div class="input-group" id="fc-sd">
       <label>Stamping Date <em>*</em></label>
-      <input type="date" id="stampDate" onclick="try{this.showPicker&&this.showPicker()}catch(e){}">
+      <div class="date-field">
+        <input type="text" id="stampDateDisplay" class="date-display" placeholder="DD/MM/YYYY" readonly inputmode="none" onclick="openDatePicker('stampDate')">
+        <input type="date" id="stampDate" class="date-native" tabindex="-1" oninput="syncDateDisplay('stampDate','stampDateDisplay')" onchange="syncDateDisplay('stampDate','stampDateDisplay')">
+      </div>
       <span class="errmsg">Required</span>
     </div>
     <div class="input-group" id="fc-wd">
       <label>W&amp;M Certificate Date <em>*</em></label>
-      <input type="date" id="wmCertDate" onclick="try{this.showPicker&&this.showPicker()}catch(e){}">
+      <div class="date-field">
+        <input type="text" id="wmCertDateDisplay" class="date-display" placeholder="DD/MM/YYYY" readonly inputmode="none" onclick="openDatePicker('wmCertDate')">
+        <input type="date" id="wmCertDate" class="date-native" tabindex="-1" oninput="syncDateDisplay('wmCertDate','wmCertDateDisplay')" onchange="syncDateDisplay('wmCertDate','wmCertDateDisplay')">
+      </div>
       <span class="errmsg">Required</span>
     </div>
   </div>
@@ -407,7 +449,10 @@ button{font-family:inherit;}
     </div>
     <div class="input-group" id="fc-grndate">
       <label>GRN Date <em>*</em></label>
-      <input type="date" id="grnDate" onclick="try{this.showPicker&&this.showPicker()}catch(e){}">
+      <div class="date-field">
+        <input type="text" id="grnDateDisplay" class="date-display" placeholder="DD/MM/YYYY" readonly inputmode="none" onclick="openDatePicker('grnDate')">
+        <input type="date" id="grnDate" class="date-native" tabindex="-1" oninput="syncDateDisplay('grnDate','grnDateDisplay')" onchange="syncDateDisplay('grnDate','grnDateDisplay')">
+      </div>
       <span class="errmsg">Required</span>
     </div>
   </div>
@@ -550,6 +595,32 @@ const ATT_META = {
 
 /* ── generic helpers ── */
 function fmtDate(d){ if(!d) return 'N/A'; return d.split('-').reverse().join('-'); }
+
+/* ── Date field shadow-picker helpers ──────────────────────────────────
+   nativeId  = id of the hidden <input type="date"> (keeps YYYY-MM-DD,
+               used by every existing $('...').value reference)
+   displayId = id of the visible readonly text field (shows DD/MM/YYYY) */
+function fmtDMY(iso){
+  if(!iso) return '';
+  const parts = iso.split('-');
+  if(parts.length!==3) return '';
+  const [y,m,d] = parts;
+  return `${d}/${m}/${y}`;
+}
+function syncDateDisplay(nativeId, displayId){
+  const nativeEl = $(nativeId), displayEl = $(displayId);
+  if(!nativeEl || !displayEl) return;
+  displayEl.value = fmtDMY(nativeEl.value);
+}
+function openDatePicker(nativeId){
+  const el = $(nativeId);
+  if(!el) return;
+  try{
+    if(typeof el.showPicker === 'function'){ el.showPicker(); return; }
+  }catch(e){}
+  try{ el.focus({preventScroll:true}); }catch(e){}
+  try{ el.click(); }catch(e){}
+}
 function rsPlain(v){ return '₹' + (Number(v)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function numWords(num){
   num = Math.round(num);
@@ -1237,6 +1308,7 @@ function confirmReset(){
 }
 function executeReset(){
   document.querySelectorAll('input').forEach(el=>{ if(!el.readOnly) el.value=''; });
+  ['invoiceDateDisplay','stampDateDisplay','wmCertDateDisplay','grnDateDisplay'].forEach(id=>{ const el=$(id); if(el) el.value=''; });
   $('mpdModel').selectedIndex = 0;
   ['cert','receipt','extra'].forEach(t=>{ images[t]=null; renderSlot(t); });
   extraDocType = null;
@@ -1285,6 +1357,7 @@ PERSIST_FIELDS.forEach(id=> $(id).addEventListener('input', saveLocal));
 function setDefaultDates(){
   const today = new Date().toISOString().slice(0,10);
   $('invoiceDate').value = today;
+  syncDateDisplay('invoiceDate','invoiceDateDisplay');
 }
 
 /* ══════════════════════════════════════════════
