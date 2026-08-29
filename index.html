@@ -99,14 +99,12 @@ button{font-family:inherit;}
   max-width:880px;width:100%;position:relative;
   box-shadow:0 2px 14px rgba(16,27,45,0.07), 0 1px 3px rgba(16,27,45,0.05);
   border:1px solid var(--line-2);
-  animation:cardIn .45s cubic-bezier(.22,.9,.32,1.15) backwards;
   display:flex;flex-direction:column;gap:12px;
 }
 .content-card::before{
   content:'';position:absolute;top:0;left:18px;right:18px;height:3px;border-radius:0 0 3px 3px;
   background:linear-gradient(90deg,var(--amber),var(--amber-deep));
 }
-@keyframes cardIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 .card-head{margin-bottom:0;display:flex;align-items:center;gap:11px;}
 .card-head .stepno{
   width:26px;height:26px;border-radius:50%;flex-shrink:0;
@@ -133,7 +131,7 @@ button{font-family:inherit;}
   min-height:var(--touch);padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;
   font-family:inherit;font-size:16px;color:var(--text);background:#FCFDFE;
   outline:none;width:100%;
-  transition:border-color .18s,box-shadow .18s,background .18s;
+  transition:border-color .18s,box-shadow .18s,background-color .18s;
 }
 /* keep native appearance ONLY off for text-like inputs/selects; date inputs need
    their own shadow-DOM layout (incl. the calendar icon) left intact or some
@@ -152,13 +150,16 @@ button{font-family:inherit;}
   background-position:right 12px center;
   background-size:19px 19px;
 }
+/* Fully remove the browser's own calendar-picker icon/dropdown affordance
+   (display:none — more reliably honoured across Android WebViews than the
+   old opacity:0 overlay trick, which on some devices left a native chevron
+   visible next to our custom icon). We reopen the picker programmatically
+   via input.showPicker() on click instead, so tapping anywhere in the
+   field still works. */
 .input-group input[type="date"]::-webkit-calendar-picker-indicator{
-  opacity:0;
-  position:absolute;
-  right:0;top:0;
-  width:100%;height:100%;
-  margin:0;padding:0;
-  cursor:pointer;
+  display:none;
+  -webkit-appearance:none;
+  appearance:none;
 }
 .input-group input:focus,.input-group select:focus{border-color:var(--amber);background:#fff;box-shadow:0 0 0 4px rgba(226,121,14,0.12);}
 .input-group input.mono{font-weight:600;}
@@ -184,23 +185,16 @@ button{font-family:inherit;}
   transition:border-color .18s,background .18s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
 }
 .upload-box:hover,.upload-box:active{border-color:var(--amber);background:var(--amber-pale);}
+.upload-box.err{border-color:var(--bad);background:var(--bad-pale);}
+/* icon sits static — always visible, no floating/bobbing animation */
 .upload-box .u-ico{
   width:42px;height:42px;border-radius:12px;
   background:var(--amber-pale);color:var(--amber-deep);
   display:flex;align-items:center;justify-content:center;
-  animation:float 3.2s ease-in-out infinite;
 }
 .upload-box .u-ico svg{width:20px;height:20px;}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
 .upload-box .u-text{font-size:11.5px;font-weight:700;color:var(--ink);line-height:1.3;}
 .upload-box .u-sub{font-size:9.5px;color:var(--muted);}
-.upload-box::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(120deg,transparent 30%,rgba(226,121,14,0.08) 50%,transparent 70%);
-  transform:translateX(-100%);
-}
-.upload-box:hover::after{animation:sheen 1.1s ease;}
-@keyframes sheen{to{transform:translateX(100%);}}
 
 .att-preview{
   border-radius:14px;overflow:hidden;position:relative;border:1.5px solid var(--good);
@@ -359,12 +353,14 @@ button{font-family:inherit;}
   </div>
   <div class="grid-2">
     <div class="input-group" id="fc-cc">
-      <label>Dealer Code</label>
+      <label>Dealer Code <em>*</em></label>
       <input type="text" id="dealerCode" placeholder="e.g. 119934" inputmode="numeric" autocomplete="off" oninput="updateInvoiceNo()">
+      <span class="errmsg">Required</span>
     </div>
     <div class="input-group" id="fc-vc">
-      <label>Vendor Code</label>
+      <label>Vendor Code <em>*</em></label>
       <input type="text" id="vendorCode" placeholder="e.g. 375911" inputmode="numeric" autocomplete="off">
+      <span class="errmsg">Required</span>
     </div>
   </div>
   <div class="input-group">
@@ -378,7 +374,7 @@ button{font-family:inherit;}
   </div>
   <div class="input-group" id="fc-invd">
     <label>Invoice Date <em>*</em></label>
-    <input type="date" id="invoiceDate" oninput="updateInvoiceNo()">
+    <input type="date" id="invoiceDate" oninput="updateInvoiceNo()" onclick="try{this.showPicker&&this.showPicker()}catch(e){}">
     <span class="errmsg">Required</span>
   </div>
 </section>
@@ -389,12 +385,12 @@ button{font-family:inherit;}
   <div class="grid-2">
     <div class="input-group" id="fc-sd">
       <label>Stamping Date <em>*</em></label>
-      <input type="date" id="stampDate">
+      <input type="date" id="stampDate" onclick="try{this.showPicker&&this.showPicker()}catch(e){}">
       <span class="errmsg">Required</span>
     </div>
     <div class="input-group" id="fc-wd">
       <label>W&amp;M Certificate Date <em>*</em></label>
-      <input type="date" id="wmCertDate">
+      <input type="date" id="wmCertDate" onclick="try{this.showPicker&&this.showPicker()}catch(e){}">
       <span class="errmsg">Required</span>
     </div>
   </div>
@@ -404,13 +400,15 @@ button{font-family:inherit;}
     <span class="errmsg">Required</span>
   </div>
   <div class="grid-2">
-    <div class="input-group">
-      <label>GRN No.</label>
+    <div class="input-group" id="fc-grnno">
+      <label>GRN No. <em>*</em></label>
       <input type="text" id="grnNo" placeholder="e.g. 46166" inputmode="numeric" autocomplete="off">
+      <span class="errmsg">Required</span>
     </div>
-    <div class="input-group">
-      <label>GRN Date</label>
-      <input type="date" id="grnDate">
+    <div class="input-group" id="fc-grndate">
+      <label>GRN Date <em>*</em></label>
+      <input type="date" id="grnDate" onclick="try{this.showPicker&&this.showPicker()}catch(e){}">
+      <span class="errmsg">Required</span>
     </div>
   </div>
 </section>
@@ -432,9 +430,10 @@ button{font-family:inherit;}
     </div>
   </div>
   <div class="grid-2">
-    <div class="input-group">
-      <label>No. of Nozzles</label>
+    <div class="input-group" id="fc-nozzles">
+      <label>No. of Nozzles <em>*</em></label>
       <input type="number" id="mpdNozzles" class="mono" placeholder="0" min="0" step="1" inputmode="numeric" oninput="recalc()">
+      <span class="errmsg">Required</span>
     </div>
     <div class="input-group">
       <label>Rate per Nozzle (₹)</label>
@@ -455,7 +454,7 @@ button{font-family:inherit;}
 <!-- ═══ Attachments ═══ -->
 <section class="content-card">
   <div class="card-head"><span class="stepno">4</span><h3><i data-lucide="paperclip"></i> Full Page Attachments</h3></div>
-  <p style="font-size:11.5px;color:var(--muted);line-height:1.6;">Photos are added as extra pages in the PDF. Crop, straighten and position each one before saving.</p>
+  <p style="font-size:11.5px;color:var(--muted);line-height:1.6;">Photos are added as extra pages in the PDF. Crop, straighten and position each one before saving. W&amp;M Cert and Receipt are required; Extra Doc is optional.</p>
   <div class="att-grid" id="attGrid">
     <div id="slot-cert"></div>
     <div id="slot-receipt"></div>
@@ -492,6 +491,7 @@ button{font-family:inherit;}
 </div>
 
 <div id="cropHost"></div>
+<div id="extraTypeHost"></div>
 <div id="inv-render" style="position:absolute;left:-99999px;top:0;"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -539,6 +539,9 @@ function applyTopbarLogo(){
 }
 
 const images = { cert:null, receipt:null, extra:null };
+/* Label chosen by the user for the Extra Doc attachment (e.g. "Technician
+   Report" or a custom typed name). Null until they pick one. */
+let extraDocType = null;
 const ATT_META = {
   cert:    { label:'W&M Cert',    sub:'Camera or gallery', icon:'file-text', badge:'#DCE9FF', badgeIco:'#2563EB' },
   receipt: { label:'Receipt',     sub:'Camera or gallery', icon:'receipt',   badge:'#DFF5EA', badgeIco:'#178A63' },
@@ -664,11 +667,12 @@ function renderSlot(target){
   const meta = ATT_META[target];
   const host = $('slot-'+target);
   const arr = images[target];
+  const displayLabel = (target==='extra' && extraDocType) ? extraDocType : meta.label;
   if(arr && arr.length){
     const multi = arr.length > 1;
     host.innerHTML = `
       <div class="att-preview">
-        <img src="${arr[0]}" alt="${meta.label}">
+        <img src="${arr[0]}" alt="${escAttr(displayLabel)}">
         ${multi?`<div class="page-badge">${arr.length} pages</div>`:''}
         <div class="att-bar">
           <div class="chk"><i data-lucide="check"></i></div>
@@ -677,7 +681,7 @@ function renderSlot(target){
             <button class="abtn" onclick="event.stopPropagation();removeImage('${target}')" aria-label="Remove"><i data-lucide="x"></i></button>
           </div>
         </div>
-        <div class="fname">${meta.label}${multi?` · ${arr.length} pages`:''}</div>
+        <div class="fname">${escAttr(displayLabel)}${multi?` · ${arr.length} pages`:''}</div>
       </div>`;
   } else {
     host.innerHTML = `
@@ -690,13 +694,74 @@ function renderSlot(target){
   }
   reIcons();
 }
-function removeImage(target){ images[target] = null; renderSlot(target); }
+function removeImage(target){
+  images[target] = null;
+  if(target === 'extra') extraDocType = null;
+  renderSlot(target);
+}
 function reeditImage(target){ const arr = images[target]; if(arr && arr.length===1) openCropper(arr[0], target); }
 
 function openPicker(target){
+  // Extra Doc asks what kind of document it is first, so the choice can be
+  // printed as enclosure point 3 on the invoice.
+  if(target === 'extra'){ openExtraTypeModal(); return; }
   // Native picker: on Android/iOS, accept="image/*,application/pdf" surfaces the
   // OS chooser (Camera / Photos / Files). On desktop it's a plain file dialog.
   $(target+'File').click();
+}
+
+/* ══════════════════════════════════════════════
+   EXTRA DOC TYPE — quick chooser before the file picker opens
+   ══════════════════════════════════════════════ */
+function openExtraTypeModal(){
+  $('extraTypeHost').innerHTML = `
+    <div class="overlay on" id="extraTypeOverlay" style="align-items:center;">
+      <div class="ov-inner" style="border-radius:20px;max-width:380px;max-height:none;animation:fadeIn .2s ease;">
+        <div class="ov-bar">
+          <h3>What is this document?</h3>
+          <button onclick="closeExtraTypeModal()" aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+        <div style="padding:18px 20px;display:flex;flex-direction:column;gap:10px;">
+          <button type="button" class="btn" style="background:var(--paper);color:var(--ink);border:1.5px solid var(--line);justify-content:flex-start;" onclick="selectExtraDocType('Technician Report')">
+            <i data-lucide="wrench"></i> Technician Report
+          </button>
+          <button type="button" class="btn" style="background:var(--paper);color:var(--ink);border:1.5px solid var(--line);justify-content:flex-start;" onclick="selectExtraDocType('__other__')">
+            <i data-lucide="file-plus"></i> Other
+          </button>
+          <div class="input-group" id="extraOtherWrap" style="display:none;margin-top:2px;">
+            <label>Document Name <em>*</em></label>
+            <input type="text" id="extraOtherInput" placeholder="e.g. Technician Visit Note" autocapitalize="sentences">
+            <span class="errmsg">Please enter a document name</span>
+          </div>
+        </div>
+        <div class="ov-foot" id="extraTypeFoot" style="display:none;">
+          <button class="btn btn-line" style="border:1.5px solid var(--line);color:var(--ink);" onclick="closeExtraTypeModal()">Cancel</button>
+          <button class="btn btn-green" onclick="confirmExtraOther()">Continue</button>
+        </div>
+      </div>
+    </div>`;
+  reIcons();
+}
+function closeExtraTypeModal(){ $('extraTypeHost').innerHTML = ''; }
+function selectExtraDocType(type){
+  if(type === '__other__'){
+    $('extraOtherWrap').style.display = 'flex';
+    $('extraTypeFoot').style.display = 'flex';
+    $('extraOtherInput').focus();
+    return;
+  }
+  extraDocType = type;
+  closeExtraTypeModal();
+  $('extraFile').click();
+}
+function confirmExtraOther(){
+  const wrap = $('extraOtherWrap');
+  const v = $('extraOtherInput').value.trim();
+  if(!v){ wrap.classList.add('err'); return; }
+  wrap.classList.remove('err');
+  extraDocType = v;
+  closeExtraTypeModal();
+  $('extraFile').click();
 }
 
 if(window.pdfjsLib){
@@ -898,18 +963,27 @@ function applyCrop(){
 }
 
 /* ══════════════════════════════════════════════
-   VALIDATION
+   VALIDATION — every field is required except Extra Doc and
+   Additional Charges / Conveyance.
    ══════════════════════════════════════════════ */
 function validate(){
   const req = [
-    ['fc-station','stationName'], ['fc-gstin','gstin'], ['fc-invd','invoiceDate'],
-    ['fc-sd','stampDate'], ['fc-wn','wmCertNo'], ['fc-wd','wmCertDate'], ['fc-serial','machineSerial'],
+    ['fc-station','stationName'], ['fc-gstin','gstin'], ['fc-cc','dealerCode'], ['fc-vc','vendorCode'],
+    ['fc-invd','invoiceDate'], ['fc-sd','stampDate'], ['fc-wn','wmCertNo'], ['fc-wd','wmCertDate'],
+    ['fc-serial','machineSerial'], ['fc-grnno','grnNo'], ['fc-grndate','grnDate'], ['fc-nozzles','mpdNozzles'],
   ];
   let ok = true;
   req.forEach(([fid,vid])=>{
     const f = $(fid), v = $(vid).value.trim();
     f.classList.toggle('err', !v);
     if(!v) ok = false;
+  });
+  // W&M Cert and Receipt attachments are required; Extra Doc stays optional.
+  ['cert','receipt'].forEach(t=>{
+    const box = document.querySelector('#slot-'+t+' .upload-box');
+    const missing = !(images[t] && images[t].length);
+    if(box) box.classList.toggle('err', missing);
+    if(missing) ok = false;
   });
   return ok;
 }
@@ -945,6 +1019,7 @@ function buildInvoiceHTML(){
   const addl = parseFloat($('addlAmt').value) || 0;
   const total = stampingFee + addl;
   const year = getFinancialYear(stampDate);
+  const hasExtraDoc = !!(images.extra && images.extra.length && extraDocType);
 
   const addlRow = addl>0 ? `
       <tr>
@@ -1063,8 +1138,10 @@ function buildInvoiceHTML(){
 
     <!-- enclosure -->
     <div style="border:1px solid #000;padding:10px 14px;font-size:11px;line-height:1.9;">
-      <div><span style="font-weight:700;text-decoration:underline;">Enclosure:</span>&nbsp;&nbsp;Original Receipt GRN No. ${grnNo||'N/A'}&nbsp;&nbsp;Dated: ${fmtDate(grnDate)}</div>
-      <div style="padding-left:64px;">Original Certificate No- ${wmCertNo||'N/A'}&nbsp;&nbsp;Dated: ${fmtDate(wmCertDate)}</div>
+      <div style="font-weight:700;text-decoration:underline;margin-bottom:2px;">Enclosure:</div>
+      <div>1.&nbsp; Original Receipt GRN No. ${grnNo||'N/A'}&nbsp;&nbsp;Dated: ${fmtDate(grnDate)}</div>
+      <div>2.&nbsp; Original Certificate No- ${wmCertNo||'N/A'}&nbsp;&nbsp;Dated: ${fmtDate(wmCertDate)}</div>
+      ${hasExtraDoc ? `<div>3.&nbsp; ${escAttr(extraDocType)}</div>` : ''}
     </div>
 
     <!-- signature -->
@@ -1162,7 +1239,9 @@ function executeReset(){
   document.querySelectorAll('input').forEach(el=>{ if(!el.readOnly) el.value=''; });
   $('mpdModel').selectedIndex = 0;
   ['cert','receipt','extra'].forEach(t=>{ images[t]=null; renderSlot(t); });
+  extraDocType = null;
   document.querySelectorAll('.input-group').forEach(f=>f.classList.remove('err'));
+  document.querySelectorAll('.upload-box').forEach(b=>b.classList.remove('err'));
   $('invoiceNo')._userEdited = false;
   currentInvSeq = null;
   setDefaultDates();
