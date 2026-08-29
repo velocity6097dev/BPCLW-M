@@ -54,29 +54,39 @@ button{font-family:inherit;}
 
 /* ── Topbar ── */
 .topbar{
-  background:linear-gradient(120deg,var(--ink) 0%,var(--ink-2) 65%,#204070 100%);
+  background:var(--card);
   margin:0 clamp(-10px,-3vw,-20px) clamp(14px,3.5vw,20px);
   margin-left:calc(0px - clamp(10px,3vw,20px) - var(--sal));
   margin-right:calc(0px - clamp(10px,3vw,20px) - var(--sar));
-  padding:calc(var(--sat) + 12px) clamp(14px,4vw,30px) 16px;
+  padding:calc(var(--sat) + 12px) clamp(14px,4vw,30px) 14px;
   display:flex;align-items:center;gap:13px;
   position:sticky;top:0;z-index:400;
-  box-shadow:0 6px 24px rgba(11,26,48,0.28);
-  border-bottom:2.5px solid var(--amber);
+  box-shadow:0 2px 14px rgba(16,27,45,0.06);
+  border-bottom:5px solid var(--ink-2);
 }
 .topbar-badge{
   width:clamp(38px,9vw,46px);height:clamp(38px,9vw,46px);border-radius:12px;flex-shrink:0;
-  background:linear-gradient(135deg,var(--amber),var(--amber-deep));
+  background:linear-gradient(135deg,var(--ink-2),var(--ink));
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 3px 10px rgba(226,121,14,0.4), inset 0 1px 0 rgba(255,255,255,0.25);
+  box-shadow:0 3px 10px rgba(16,35,63,0.28), inset 0 1px 0 rgba(255,255,255,0.15);
+  position:relative;overflow:hidden;
 }
-.topbar-badge svg{width:56%;height:56%;color:#fff;}
+.topbar-badge .flame{position:absolute;top:2px;left:0;right:0;bottom:11px;display:flex;align-items:center;justify-content:center;}
+.topbar-badge .flame svg{width:50%;height:50%;color:var(--amber);}
+.topbar-badge .wordmark{
+  position:absolute;left:0;right:0;bottom:3px;text-align:center;
+  font-family:'Sora',sans-serif;font-size:6px;font-weight:800;letter-spacing:.4px;color:#fff;line-height:1;
+}
+.topbar-badge .badge-logo{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+  background:#fff;padding:4px;box-sizing:border-box;display:none;
+}
 .topbar-title{flex:1;min-width:0;overflow:hidden;}
-.topbar-title h1{font-size:clamp(13px,3.4vw,17px);font-weight:700;color:#fff;letter-spacing:.2px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.topbar-title p{font-size:clamp(9.5px,2.4vw,11px);color:rgba(255,255,255,.6);margin-top:2px;font-weight:500;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.topbar-live{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;padding-left:12px;border-left:1.5px solid rgba(255,255,255,.15);}
-.topbar-live .lbl{font-size:8.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.5);}
-.topbar-live .val{font-size:clamp(13px,3.6vw,16px);font-weight:700;color:var(--amber);transition:transform .25s ease;}
+.topbar-title h1{font-size:clamp(13px,3.4vw,17px);font-weight:700;color:var(--ink);letter-spacing:.2px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topbar-title p{font-size:clamp(9.5px,2.4vw,11px);color:var(--muted);margin-top:2px;font-weight:500;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topbar-live{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;padding-left:12px;border-left:1.5px solid var(--line);}
+.topbar-live .lbl{font-size:8.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted-2);}
+.topbar-live .val{font-size:clamp(13px,3.6vw,16px);font-weight:700;color:var(--amber-deep);transition:transform .25s ease;}
 .topbar-live .val.tick{animation:ticker .32s ease;}
 @keyframes ticker{0%{transform:translateY(-6px) scale(1.08);opacity:.4;}100%{transform:translateY(0) scale(1);opacity:1;}}
 
@@ -112,7 +122,7 @@ button{font-family:inherit;}
 
 .input-group{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
 .input-group:last-child{margin-bottom:0;}
-.input-group label{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.2px;display:flex;align-items:center;flex-wrap:wrap;row-gap:2px;line-height:1.4;min-height:14px;}
+.input-group label{font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.2px;display:flex;align-items:center;flex-wrap:wrap;row-gap:2px;line-height:1.4;min-height:32px;}
 .input-group label em{color:var(--bad);font-style:normal;margin-left:5px;}
 .input-group label .hint{margin-left:5px;}
 .input-group .hint{font-size:10px;color:var(--muted-2);font-weight:500;}
@@ -306,10 +316,14 @@ button{font-family:inherit;}
 
 <!-- ═══ TOPBAR ═══ -->
 <header class="topbar">
-  <div class="topbar-badge"><i data-lucide="fuel"></i></div>
+  <div class="topbar-badge" id="topbarBadge">
+    <div class="flame" id="topbarFallbackIcon"><i data-lucide="flame"></i></div>
+    <div class="wordmark" id="topbarFallbackWordmark">BPCL</div>
+    <img class="badge-logo" id="topbarLogoImg" alt="Logo">
+  </div>
   <div class="topbar-title">
-    <h1>BPCL W&amp;M Reimbursement</h1>
-    <p>Stamping Fee Invoice Generator</p>
+    <h1 id="hdrStationName">BPCL W&amp;M Reimbursement</h1>
+    <p id="hdrStationSub">Stamping Fee Invoice Generator</p>
   </div>
   <div class="topbar-live">
     <span class="lbl">Total</span>
@@ -349,7 +363,7 @@ button{font-family:inherit;}
   <div class="input-group">
     <label>Invoice No. <span class="hint">(auto-generated)</span></label>
     <input type="text" id="invoiceNo" class="mono" placeholder="e.g. 04Aug26119934001" autocomplete="off" maxlength="16" oninput="onInvoiceNoManualEdit()">
-    <span class="hint">Date + dealer code + a unique code — max 16 chars, never repeats. Edit freely if you need to.</span>
+    <span class="hint">Date + dealer code + a daily sequence (01, 02…) that resets each day — never repeats. Edit freely if you need to.</span>
   </div>
   <div class="input-group" id="fc-invd">
     <label>Invoice Date <em>*</em></label>
@@ -481,6 +495,38 @@ button{font-family:inherit;}
 <script>
 const $ = id => document.getElementById(id);
 let N = 1;
+
+/* ══════════════════════════════════════════════
+   LOGO — set a hosted image URL (or data: URI) here to use a custom logo
+   on both the on-screen header badge and the invoice letterhead. Leave it
+   as an empty string '' to use the default BPCL mark everywhere. If the
+   URL ever breaks or fails to load, both places automatically fall back
+   to the default mark — no broken-image icon, no manual fix needed.
+   e.g. const BPCL_LOGO_URL = 'https://yourdomain.com/bpcl-logo.png';
+   ══════════════════════════════════════════════ */
+const BPCL_LOGO_URL = 'bpcl.jpg'
+/* Applies BPCL_LOGO_URL to the header badge; falls back to the default
+   flame + wordmark mark if the URL is empty or fails to load. */
+function applyTopbarLogo(){
+  const url = BPCL_LOGO_URL.trim();
+  const img = $('topbarLogoImg');
+  const icon = $('topbarFallbackIcon');
+  const word = $('topbarFallbackWordmark');
+  if(!img) return;
+  if(!url){ img.style.display = 'none'; return; }
+  img.onload = ()=>{
+    img.style.display = 'block';
+    if(icon) icon.style.display = 'none';
+    if(word) word.style.display = 'none';
+  };
+  img.onerror = ()=>{
+    img.style.display = 'none';
+    if(icon) icon.style.display = '';
+    if(word) word.style.display = '';
+  };
+  img.src = url;
+}
+
 const images = { cert:null, receipt:null, extra:null };
 const ATT_META = {
   cert:    { label:'W&M Cert',    sub:'Camera or gallery', icon:'file-text', badge:'#DCE9FF', badgeIco:'#2563EB' },
@@ -513,23 +559,46 @@ function getFinancialYear(dateStr){
   return m<3 ? `${y-1}-${(''+y).slice(-2)}` : `${y}-${(''+(y+1)).slice(-2)}`;
 }
 function reIcons(){ if(window.lucide) lucide.createIcons(); }
+function escAttr(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-/* ── Invoice number: DD + Mon (e.g. "Aug") + YY + dealer code + a per-device
-   unique code, max 16 chars ── e.g. 04Aug26119934001
-   Budget: date 7 + dealer 6 + code 3 = 16. No room left for the machine
+/* Default BPCL mark used on the invoice letterhead when no custom logo is
+   set, or if the custom logo URL fails to load. */
+const DEFAULT_LOGO_MARK_HTML = '<div style="width:100%;height:100%;border-radius:13px;background:linear-gradient(135deg,#17325B,#10233F);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(16,35,63,0.28);"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#E2790E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg><div style="font-size:8px;font-weight:800;letter-spacing:.5px;color:#fff;margin-top:3px;">BPCL</div></div>';
+function handleLetterheadLogoError(imgEl){
+  const box = imgEl.parentElement;
+  if(box) box.innerHTML = DEFAULT_LOGO_MARK_HTML;
+}
+
+/* ── Header stays static: "BPCL W&M Reimbursement" / "Stamping Fee Invoice Generator" ── */
+function updateHeaderInfo(){ /* intentionally static — header no longer mirrors form fields */ }
+
+/* ── Invoice number: DD + Mon (e.g. "Aug") + YY + dealer code + a
+   per-day sequence number, max 16 chars ── e.g. 04Aug2611993401
+   Budget: date 7 + dealer 6 + seq 2(+) = 15-16. No room left for the machine
    serial once dealer code takes its full 6 chars — it stays a required
    field and still prints on the invoice, just isn't part of the number.
-   The sequence part comes from a localStorage counter that only advances once per
-   NEW invoice (on first generation, or after Reset) — so retyping the date/dealer
-   code while filling the form doesn't burn through codes, but every finished
-   invoice gets a code that has never been used on this device before. ── */
+   The sequence is a "01, 02, 03…" counter that resets to 01 automatically
+   whenever the Invoice Date changes to a day that hasn't been used yet on
+   this device — so today's invoices always read 01, 02, 03… and tomorrow
+   starts back at 01, with no chance of two invoices sharing the same
+   date+sequence. It only advances once per NEW invoice (on first
+   generation, or after Reset) — retyping fields while filling the form
+   doesn't burn through numbers. ── */
 const MONTH_ABBR = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const INV_SEQ_KEY = 'bss_invoice_seq_v2';
 let currentInvSeq = null;
 function cleanAlnum(s){ return (s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
 function nextInvSeq(){
-  let n = parseInt(localStorage.getItem('bss_invoice_seq')||'0', 10) + 1;
-  localStorage.setItem('bss_invoice_seq', String(n));
-  return n.toString(36).toUpperCase().padStart(3,'0');
+  // Bucketed by the invoice date actually on the form (falls back to today),
+  // so the counter — and therefore the printed "01, 02…" — resets the moment
+  // the date changes, and never repeats for a date already used.
+  const dateKey = $('invoiceDate').value || todayISO();
+  let stored = null;
+  try{ stored = JSON.parse(localStorage.getItem(INV_SEQ_KEY) || 'null'); }catch(e){ stored = null; }
+  const seq = (stored && stored.date === dateKey) ? stored.seq + 1 : 1;
+  localStorage.setItem(INV_SEQ_KEY, JSON.stringify({ date: dateKey, seq }));
+  return String(seq).padStart(2,'0');
 }
 function ensureInvSeq(){
   if(currentInvSeq === null) currentInvSeq = nextInvSeq();
@@ -848,6 +917,7 @@ function buildInvoiceHTML(){
   const vendorCode = $('vendorCode').value.trim();
   const gstin = $('gstin').value.trim().toUpperCase();
   const panNo = $('panNo').value.trim();
+  const logoUrl = BPCL_LOGO_URL.trim();
   const invoiceNo = $('invoiceNo').value.trim() || 'N/A';
   const invoiceDate = $('invoiceDate').value;
   const stampDate = $('stampDate').value;
@@ -875,14 +945,27 @@ function buildInvoiceHTML(){
   return `
 <div style="font-family:Arial,Helvetica,sans-serif;font-size:11.5px;color:#000;background:#fff;width:794px;padding:34px 44px;line-height:1.5;">
 
-  <!-- ── Station Letterhead (own tinted box, sits above the main frame) ── -->
-  <div style="text-align:center;border:1px solid #DCE3EE;background:#F4F7FB;border-radius:3px;padding:22px 16px;margin-bottom:20px;">
-    <div style="font-size:22px;font-weight:800;color:#10233F;letter-spacing:.4px;">M/S. ${stationName}</div>
-    <div style="font-size:12.5px;font-weight:700;color:#161616;margin-top:5px;letter-spacing:.3px;">DEALER: BHARAT PETROLEUM CORP LTD.</div>
-    <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;padding:0 24px;">
-      <div><strong>GSTIN:</strong> ${gstin||'N/A'}</div>
-      <div><strong>PAN NO:</strong> ${panNo||'N/A'}</div>
+  <!-- ── Station Letterhead — white, matches the paper. Logo pinned left with a matching spacer
+       on the right so the pump details sit truly centered on the page, like a formal letterhead.
+       Thick blue rule below separates it from the invoice frame. ── -->
+  <div style="padding:0 2px 18px;">
+    <div style="display:grid;grid-template-columns:112px 1fr 112px;align-items:center;gap:18px;">
+      <div style="position:relative;width:112px;height:122px;background:#fff;">
+        ${logoUrl
+          ? `<img src="${escAttr(logoUrl)}" alt="Logo" crossorigin="anonymous" referrerpolicy="no-referrer" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;" onerror="handleLetterheadLogoError(this)">`
+          : DEFAULT_LOGO_MARK_HTML}
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:25px;font-weight:800;color:#10233F;letter-spacing:.3px;">M/S. ${stationName}</div>
+        <div style="font-size:14px;font-weight:700;color:#161616;margin-top:5px;letter-spacing:.2px;">DEALER: BHARAT PETROLEUM CORP LTD.</div>
+        <div style="display:flex;justify-content:center;gap:28px;margin-top:8px;font-size:12.5px;">
+          <div><strong>GSTIN:</strong> ${gstin||'N/A'}</div>
+          <div><strong>PAN NO:</strong> ${panNo||'N/A'}</div>
+        </div>
+      </div>
+      <div></div>
     </div>
+    <div style="height:5px;background:#17325B;border-radius:2px;margin-top:16px;"></div>
   </div>
 
   <!-- ── Main document frame — one continuous box, matches the reference invoice ── -->
@@ -971,10 +1054,12 @@ function buildInvoiceHTML(){
     </div>
 
     <!-- signature -->
-    <div style="border:1px solid #000;border-top:none;min-height:112px;padding:16px 20px;text-align:right;">
-      <div style="font-weight:700;font-size:12px;">For ${stationName}</div>
-      <div style="height:44px;"></div>
-      <div style="font-size:10.5px;">(Name/Signature/Seal of the Dealer)</div>
+    <div style="border:1px solid #000;border-top:none;min-height:170px;padding:16px 20px;display:flex;justify-content:flex-end;">
+      <div style="width:260px;text-align:center;">
+        <div style="height:100px;"></div>
+        <div style="font-weight:700;font-size:12px;white-space:nowrap;">For ${stationName}</div>
+        <div style="font-size:10.5px;margin-top:4px;white-space:nowrap;">(Name/Signature/Seal of the Dealer)</div>
+      </div>
     </div>
 
   </div>
@@ -1067,6 +1152,7 @@ function executeReset(){
   $('invoiceNo')._userEdited = false;
   currentInvSeq = null;
   setDefaultDates();
+  updateHeaderInfo();
   updateInvoiceNo();
   recalc();
   localStorage.removeItem('bss_wm_data');
@@ -1101,6 +1187,7 @@ function loadLocal(){
   }catch(e){}
 }
 PERSIST_FIELDS.forEach(id=> $(id).addEventListener('input', saveLocal));
+['stationName','dealerCode','vendorCode'].forEach(id=> $(id).addEventListener('input', updateHeaderInfo));
 
 function setDefaultDates(){
   const today = new Date().toISOString().slice(0,10);
@@ -1112,8 +1199,10 @@ function setDefaultDates(){
    ══════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', ()=>{
   reIcons();
+  applyTopbarLogo();
   setDefaultDates();
   loadLocal();
+  updateHeaderInfo();
   ['cert','receipt','extra'].forEach(renderSlot);
   updateInvoiceNo();
   recalc();
