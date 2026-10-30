@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10233F">
+<title>BPCLW-M — We've Moved</title>
+
+<!-- No-JS fallback: redirects on its own even if JavaScript is blocked.
+     Set to the same NEW_URL as the script below — keep both in sync. -->
+<meta http-equiv="refresh" content="3;url=https://bpclinvoicemaker.infy.click">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* Same palette/typography/topbar as the main app (css/styles.css) —
+   kept inline here since this is a separate, standalone package. */
+:root{
+  --ink:#10233F; --ink-2:#17325B; --ink-3:#0B1A30;
+  --paper:#EEF1F7; --card:#FFFFFF; --line:#DEE4EF; --line-2:#E9EDF4;
+  --muted:#64708A; --muted-2:#8996AC;
+  --amber:#E2790E; --amber-deep:#B85F09; --amber-pale:#FDF1E2;
+  --text:#101B2D;
+  --radius:16px; --radius-sm:10px;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{overflow-x:clip;}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(226,121,14,0.07) 0%, transparent 45%),
+    radial-gradient(circle at 88% 92%, rgba(16,35,63,0.06) 0%, transparent 50%),
+    var(--paper);
+  color:var(--text);
+  min-height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  padding:24px; padding-top:calc(24px + var(--sat)); padding-bottom:calc(24px + var(--sab));
+}
+
+/* ── Topbar — identical markup/classes to src/index.html, so it reads as
+   the same product, not a different page pretending to be related. ── */
+.topbar{
+  width:100%; max-width:420px;
+  display:flex; align-items:center; gap:13px;
+  background:linear-gradient(135deg,var(--ink) 0%,var(--ink-2) 55%,var(--ink-3) 100%);
+  border-radius:var(--radius); padding:14px 18px; margin-bottom:28px;
+  box-shadow:0 10px 28px rgba(16,35,63,.22);
+}
+.topbar-badge{position:relative;width:40px;height:40px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.topbar-badge .flame{color:var(--amber);display:flex;}
+.topbar-badge .flame svg{width:22px;height:22px;}
+.topbar-badge .wordmark{position:absolute;font-size:7px;font-weight:800;color:var(--ink);bottom:4px;letter-spacing:.3px;}
+.topbar-badge img{width:100%;height:100%;object-fit:cover;display:none;}
+.topbar-title h1{font-family:'Sora',sans-serif;font-size:15.5px;font-weight:800;color:#fff;letter-spacing:.1px;}
+.topbar-title p{font-size:10.5px;color:rgba(255,255,255,.62);font-weight:600;margin-top:1px;}
+
+/* ── Card ── */
+.card{
+  width:100%; max-width:420px;
+  background:var(--card); border:1px solid var(--line-2); border-radius:var(--radius);
+  padding:32px 26px; text-align:center;
+  box-shadow:0 2px 14px rgba(16,35,63,.07);
+}
+.card img.loader{width:64px;height:64px;object-fit:contain;margin-bottom:16px;}
+.card h2{font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:var(--ink);margin-bottom:8px;}
+.card p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:4px;}
+.card .dest{font-size:12px;color:var(--ink-2);font-weight:700;word-break:break-all;margin:14px 0 20px;}
+.card a.manual{
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--amber); color:#fff; font-weight:700; font-size:13px;
+  padding:12px 22px; border-radius:99px; text-decoration:none;
+  box-shadow:0 6px 18px rgba(226,121,14,.28);
+}
+.card .fineprint{margin-top:18px;font-size:10.5px;color:var(--muted-2);}
+</style>
+</head>
+<body>
+
+<div style="width:100%;display:flex;flex-direction:column;align-items:center;">
+  <header class="topbar">
+    <div class="topbar-badge">
+      <div class="flame"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c0-1-.5-2-1-2.5.7 2 .2 4-1.5 5-1 .6-2.5.5-3.2-.5-.8-1.1-.5-2.3.3-3C13.5 7.2 12.3 4.5 12 2z"/></svg></div>
+      <div class="wordmark">BPCL</div>
+      <img id="topbarLogoImg" src="assets/bpcl.jpg" alt="BPCL">
+    </div>
+    <div class="topbar-title">
+      <h1>BPCLW-M</h1>
+      <p>W&amp;M Reimbursement</p>
+    </div>
+  </header>
+
+  <div class="card">
+    <img class="loader" src="assets/loader.gif" alt="">
+    <h2>We've moved!</h2>
+    <p>BPCLW-M now lives at our new address — taking you there now.</p>
+    <div class="dest" id="destText"></div>
+    <a class="manual" id="manualLink" href="#">Go there now →</a>
+    <p class="fineprint">Update your bookmark — this page will keep redirecting you for a while, but it won't be here forever.</p>
+  </div>
+</div>
+
+<script>
+  // Single place to update if the destination ever changes.
+  var NEW_URL = 'https://bpclinvoicemaker.infy.click';
+
+  document.getElementById('destText').textContent = NEW_URL;
+  document.getElementById('manualLink').href = NEW_URL;
+
+  var img = document.getElementById('topbarLogoImg');
+  img.onload = function(){
+    img.style.display = 'block';
+    document.querySelector('.flame').style.display = 'none';
+    document.querySelector('.wordmark').style.display = 'none';
+  };
+  img.onerror = function(){ img.style.display = 'none'; };
+
+  // Matches the main app's 3-second minimum loading convention — long
+  // enough to register as intentional, not a flash or a glitch.
+  setTimeout(function(){
+    window.location.replace(NEW_URL);
+  }, 3000);
+</script>
+
+</body>
+</html>
